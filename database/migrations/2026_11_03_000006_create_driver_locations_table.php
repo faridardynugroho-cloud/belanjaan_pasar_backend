@@ -10,12 +10,11 @@ return new class extends Migration
     {
         Schema::create('driver_locations', function (Blueprint $table) {
             $table->id('driver_location_id');
-            $table->foreignId('user_id')
+            $table->foreignId('user_id')->unique()
                 ->constrained('users', 'user_id')->cascadeOnDelete();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
             $table->dateTime('recorded_at');
-
             $table->index(['user_id', 'recorded_at']);
         });
     }

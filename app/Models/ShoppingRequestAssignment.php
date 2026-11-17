@@ -7,11 +7,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ShoppingRequestAssignment extends Model
 {
-    public const STATUS_ASSIGNED = 'assigned';
-    public const STATUS_IN_PROGRESS = 'in_progress';
-    public const STATUS_COMPLETED = 'completed';
-    public const STATUS_CANCELLED = 'cancelled';
-
     protected $primaryKey = 'shopping_request_assignment_id';
 
     protected $fillable = [
@@ -19,7 +14,6 @@ class ShoppingRequestAssignment extends Model
         'helper_id',
         'assigned_by',
         'assigned_at',
-        'status',
     ];
 
     protected function casts(): array

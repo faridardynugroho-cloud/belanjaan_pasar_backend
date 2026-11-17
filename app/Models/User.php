@@ -6,6 +6,7 @@ use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -27,7 +28,6 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'gender',
         'birth_date',
-        'address',
         'role',
     ];
 
@@ -95,10 +95,9 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Cart::class, 'user_id', 'user_id');
     }
 
-    public function activeCart(): HasOne
+    public function cart(): HasOne
     {
-        return $this->hasOne(Cart::class, 'user_id', 'user_id')
-            ->where('status', Cart::STATUS_ACTIVE);
+        return $this->hasOne(Cart::class, 'user_id', 'user_id');
     }
 
     public function shoppingRequests(): HasMany
@@ -111,10 +110,16 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(Order::class, 'user_id', 'user_id');
     }
 
-    /** Pengiriman yang dibawa user ini (role driver). */
-    public function deliveries(): HasMany
+    public function deliveries(): HasManyThrough
     {
-        return $this->hasMany(Delivery::class, 'driver_id', 'user_id');
+        return $this->hasManyThrough(
+            Delivery::class,
+            DriverProfile::class,
+            'user_id',
+            'driver_profile_id',
+            'user_id',
+            'driver_profile_id',
+        );
     }
 
     /** Penugasan helper yang dibuat oleh user ini (role admin). */

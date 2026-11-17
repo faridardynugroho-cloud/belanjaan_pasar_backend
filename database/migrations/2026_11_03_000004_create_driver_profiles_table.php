@@ -12,9 +12,8 @@ return new class extends Migration
             $table->id('driver_profile_id');
             $table->foreignId('user_id')->unique()
                 ->constrained('users', 'user_id')->cascadeOnDelete();
-            $table->string('vehicle_type', 50)->nullable();
-            $table->string('vehicle_plate', 20)->nullable();
-            $table->boolean('is_available')->default(true);
+            $table->text('domicile_address');
+            $table->boolean('is_available')->default(false);
             $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->dateTime('reviewed_at')->nullable();

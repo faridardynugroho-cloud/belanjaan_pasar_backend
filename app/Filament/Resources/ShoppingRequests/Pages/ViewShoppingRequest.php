@@ -33,12 +33,12 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Tugaskan Helper')
                 ->icon('heroicon-o-user-plus')
                 ->color('info')
-                ->visible(fn (ShoppingRequest $record) => $record->status === 'pending')
+                ->visible(fn(ShoppingRequest $record) => $record->status === 'pending')
                 ->schema([
                     Select::make('helper_id')
                         ->label('Helper')
-                        ->options(fn () => Helper::where('is_active', true)->pluck('name', 'helper_id'))
-                        ->default(fn () => Helper::where('is_active', true)->value('helper_id'))
+                        ->options(fn() => Helper::where('is_active', true)->pluck('name', 'helper_id'))
+                        ->default(fn() => Helper::where('is_active', true)->value('helper_id'))
                         ->required(),
                 ])
                 ->action(function (ShoppingRequest $record, array $data) {
@@ -47,7 +47,6 @@ class ViewShoppingRequest extends ViewRecord
                             'helper_id' => $data['helper_id'],
                             'assigned_by' => Auth::id(),
                             'assigned_at' => now(),
-                            'status' => 'assigned',
                         ]);
                         $record->update(['status' => 'assigned']);
                     });
@@ -60,13 +59,10 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Mulai Belanja')
                 ->icon('heroicon-o-play')
                 ->color('info')
-                ->visible(fn (ShoppingRequest $record) => $record->status === 'assigned')
+                ->visible(fn(ShoppingRequest $record) => $record->status === 'assigned')
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
-                    DB::transaction(function () use ($record) {
-                        $record->currentAssignment?->update(['status' => 'in_progress']);
-                        $record->update(['status' => 'shopping']);
-                    });
+                    $record->update(['status' => 'shopping']);
 
                     Notification::make()->title('Status: sedang belanja')->success()->send();
                 }),
@@ -76,9 +72,9 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Input Hasil Belanja')
                 ->icon('heroicon-o-pencil-square')
                 ->color('primary')
-                ->visible(fn (ShoppingRequest $record) => $record->status === 'shopping' && ! $record->order()->exists())
+                ->visible(fn(ShoppingRequest $record) => $record->status === 'shopping' && ! $record->order()->exists())
                 ->modalWidth(Width::FiveExtraLarge)
-                ->fillForm(fn (ShoppingRequest $record) => $this->hasilDefaults($record))
+                ->fillForm(fn(ShoppingRequest $record) => $this->hasilDefaults($record))
                 ->schema([
                     Radio::make('mode')
                         ->label('Metode input')
@@ -93,7 +89,7 @@ class ViewShoppingRequest extends ViewRecord
 
                     Repeater::make('items')
                         ->label('Rincian barang')
-                        ->visible(fn (Get $get) => $get('mode') === 'rincian')
+                        ->visible(fn(Get $get) => $get('mode') === 'rincian')
                         ->minItems(1)
                         ->columns(5)
                         ->addActionLabel('Tambah barang')
@@ -115,14 +111,14 @@ class ViewShoppingRequest extends ViewRecord
                         ->numeric()
                         ->prefix('Rp')
                         ->minValue(1)
-                        ->visible(fn (Get $get) => $get('mode') === 'total')
+                        ->visible(fn(Get $get) => $get('mode') === 'total')
                         ->required(),
 
                     TextInput::make('total_weight_kg')
                         ->label('Total berat (kg)')
                         ->numeric()
                         ->minValue(0.01)
-                        ->visible(fn (Get $get) => $get('mode') === 'total')
+                        ->visible(fn(Get $get) => $get('mode') === 'total')
                         ->required(),
 
                     TextInput::make('service_fee')
@@ -167,9 +163,9 @@ class ViewShoppingRequest extends ViewRecord
                         }
 
                         $record->update([
-                            'goods_total' => $goods,
+                            'total' => $goods,
                             'service_fee' => (float) $data['service_fee'],
-                            'total_weight' => round($grams / 1000, 2),
+                            'total_weight_grams' => $grams,
                         ]);
                     });
 
@@ -181,24 +177,15 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Kirim Harga')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success')
-                ->visible(fn (ShoppingRequest $record) => $record->status === 'shopping'
-                    && $record->goods_total > 0
+                ->visible(fn(ShoppingRequest $record) => $record->status === 'shopping'
+                    && $record->total > 0
                     && ! $record->order()->exists())
                 ->requiresConfirmation()
                 ->modalHeading('Kirim harga ke customer?')
-                ->modalDescription(fn (ShoppingRequest $record) => 'Total tagihan Rp '
-                    . number_format($record->goods_total + $record->service_fee, 0, ',', '.')
+                ->modalDescription(fn(ShoppingRequest $record) => 'Total tagihan Rp '
+                    . number_format($record->total + $record->service_fee, 0, ',', '.')
                     . '. Sistem akan membuat pesanan dan tagihan pembayaran (menunggu pembayaran).')
                 ->action(function (ShoppingRequest $record) {
-                    if (! $record->address) {
-                        Notification::make()
-                            ->title('Alamat customer sudah dihapus')
-                            ->body('Pesanan tidak bisa dibuat tanpa alamat tujuan.')
-                            ->danger()
-                            ->send();
-
-                        return;
-                    }
 
                     $order = DB::transaction(function () use ($record) {
                         $req = ShoppingRequest::query()
@@ -210,26 +197,24 @@ class ViewShoppingRequest extends ViewRecord
                             return null;
                         }
 
-                        $address = $req->address;
                         $items = $req->items;
-                        $grandTotal = $req->goods_total + $req->service_fee;
+                        $grandTotal = $req->total + $req->service_fee;
                         $grams = $items->isNotEmpty()
                             ? (int) $items->sum('total_weight_grams')
-                            : (int) round($req->total_weight * 1000);
+                            : (int) $req->total_weight_grams;
 
                         $order = Order::create([
                             'user_id' => $req->user_id,
-                            'address_id' => $address->getKey(),
                             'market_id' => $req->market_id,
                             'shopping_request_id' => $req->getKey(),
                             'order_number' => 'ORD-' . now()->format('Ymd') . '-' . Str::upper(Str::random(6)),
                             // snapshot alamat
-                            'recipient_name' => $address->recipient_name,
-                            'recipient_phone' => $address->phone,
-                            'shipping_address' => $address->full_address,
-                            'shipping_latitude' => $address->latitude,
-                            'shipping_longitude' => $address->longitude,
-                            'subtotal' => $req->goods_total,
+                            'recipient_name' => $req->recipient_name,
+                            'recipient_phone' => $req->recipient_phone,
+                            'shipping_address' => $req->shipping_address,
+                            'shipping_latitude' => $req->shipping_latitude,
+                            'shipping_longitude' => $req->shipping_longitude,
+                            'subtotal' => $req->total,
                             'delivery_fee' => $req->service_fee,
                             'grand_total' => $grandTotal,
                             'total_weight_grams' => $grams,
@@ -255,8 +240,8 @@ class ViewShoppingRequest extends ViewRecord
                                 'product_name' => 'Belanjaan Titipan (Ngebelanjain)',
                                 'unit' => 'paket',
                                 'quantity' => 1,
-                                'unit_price' => $req->goods_total,
-                                'subtotal' => $req->goods_total,
+                                'unit_price' => $req->total,
+                                'subtotal' => $req->total,
                                 'weight_grams' => $grams,
                                 'total_weight_grams' => $grams,
                             ]);
@@ -295,13 +280,10 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Batalkan')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn (ShoppingRequest $record) => in_array($record->status, ['pending', 'assigned', 'shopping']))
+                ->visible(fn(ShoppingRequest $record) => in_array($record->status, ['pending', 'assigned', 'shopping']))
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
-                    DB::transaction(function () use ($record) {
-                        $record->currentAssignment?->update(['status' => 'cancelled']);
-                        $record->update(['status' => 'cancelled']);
-                    });
+                    $record->update(['status' => 'cancelled']);
 
                     Notification::make()->title('Permintaan dibatalkan')->success()->send();
                 }),
@@ -313,16 +295,16 @@ class ViewShoppingRequest extends ViewRecord
         $items = $record->items;
 
         return [
-            'mode' => $items->isEmpty() && $record->goods_total > 0 ? 'total' : 'rincian',
-            'items' => $items->map(fn ($i) => [
+            'mode' => $items->isEmpty() && $record->total > 0 ? 'total' : 'rincian',
+            'items' => $items->map(fn($i) => [
                 'name' => $i->name,
                 'quantity' => (float) $i->quantity,
                 'unit' => $i->unit,
                 'unit_price' => (float) $i->unit_price,
                 'weight_grams' => (int) $i->weight_grams,
             ])->all(),
-            'goods_total' => $record->goods_total > 0 ? (float) $record->goods_total : null,
-            'total_weight_kg' => $record->total_weight > 0 ? (float) $record->total_weight : null,
+            'goods_total' => $record->total > 0 ? (float) $record->total : null,
+            'total_weight_kg' => $record->total_weight_grams > 0 ? round($record->total_weight_grams / 1000, 2) : null,
             'service_fee' => (float) $record->service_fee,
         ];
     }

@@ -58,6 +58,12 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsible(false),
 
                 NavigationGroup::make()
+                    ->label('Laporan')
+                    ->icon('heroicon-o-chart-bar')
+                    ->collapsible()
+                    ->collapsed(),
+
+                NavigationGroup::make()
                     ->label('LAINNYA')
                     ->collapsible(false),
             ]);

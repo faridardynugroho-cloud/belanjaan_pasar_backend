@@ -22,7 +22,6 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'address_id',
         'market_id',
         'shopping_request_id',
         'order_number',
@@ -53,12 +52,6 @@ class Order extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
-    }
-
-    /** Referensi alamat asli. Alamat resmi pesanan ada di kolom snapshot shipping_*. */
-    public function address(): BelongsTo
-    {
-        return $this->belongsTo(Address::class, 'address_id', 'address_id');
     }
 
     public function market(): BelongsTo
@@ -96,7 +89,7 @@ class Order extends Model
     public function deliveries(): BelongsToMany
     {
         return $this->belongsToMany(Delivery::class, 'delivery_orders', 'order_id', 'delivery_id')
-            ->withPivot(['delivery_order_id', 'assigned_at'])
+            ->withPivot(['delivery_order_id', 'status', 'assigned_at'])
             ->withTimestamps();
     }
 
@@ -104,10 +97,7 @@ class Order extends Model
     public function activeDelivery(): HasOne
     {
         return $this->hasOne(DeliveryOrder::class, 'order_id', 'order_id')
-            ->whereHas('delivery', fn ($q) => $q->whereIn('status', [
-                Delivery::STATUS_PENDING,
-                Delivery::STATUS_ON_THE_WAY,
-            ]))
+            ->whereIn('status', DeliveryOrder::ACTIVE_STATUSES)
             ->latestOfMany('delivery_order_id');
     }
 

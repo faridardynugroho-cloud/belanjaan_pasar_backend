@@ -14,10 +14,18 @@ return new class extends Migration
                 ->constrained('deliveries', 'delivery_id')->cascadeOnDelete();
             $table->foreignId('order_id')
                 ->constrained('orders', 'order_id')->restrictOnDelete();
+            $table->enum('status', ['pending', 'accepted', 'rejected', 'on_the_way', 'completed'])
+                ->default('pending');
+            $table->text('rejection_reason')->nullable();
             $table->dateTime('assigned_at');
+            $table->dateTime('accepted_at')->nullable();
+            $table->dateTime('rejected_at')->nullable();
+            $table->dateTime('started_at')->nullable();
+            $table->dateTime('completed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['delivery_id', 'order_id']);
+            $table->index(['order_id', 'status']);
         });
     }
 

@@ -14,10 +14,8 @@ return new class extends Migration
                 ->constrained('users', 'user_id')->cascadeOnDelete();
             $table->foreignId('market_id')
                 ->constrained('markets', 'market_id')->restrictOnDelete();
-            $table->enum('status', ['active', 'checked_out', 'abandoned'])->default('active');
             $table->timestamps();
-
-            $table->index(['user_id', 'status']);
+            $table->unique('user_id');
         });
     }
 

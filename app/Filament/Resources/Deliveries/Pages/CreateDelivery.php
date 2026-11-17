@@ -52,9 +52,8 @@ class CreateDelivery extends CreateRecord
             }
 
             $delivery = Delivery::create([
-                'driver_id' => $data['driver_id'],
+                'driver_profile_id' => $data['driver_profile_id'],
                 'delivery_number' => 'DLV-' . now()->format('Ymd') . '-' . Str::upper(Str::random(6)),
-                'status' => 'pending',
             ]);
 
             foreach ($orders as $order) {
