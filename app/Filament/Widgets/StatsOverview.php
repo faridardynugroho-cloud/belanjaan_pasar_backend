@@ -28,7 +28,10 @@ class StatsOverview extends StatsOverviewWidget
 
         $ngebelanjainBaru = ShoppingRequest::where('status', 'pending')->count();
 
-        $pengirimanBerjalan = Delivery::where('status', 'on_the_way')->count();
+        $pengirimanBerjalan = Delivery::whereNotNull('started_at')
+            ->whereNull('completed_at')
+            ->whereNull('cancelled_at')
+            ->count();
 
         return [
             Stat::make('Pesanan Hari Ini', $pesananHariIni)

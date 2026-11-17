@@ -14,6 +14,9 @@ class OrderStatus
         'cancelled' => 'Dibatalkan',
     ];
 
+    // Status yang dihitung sebagai penjualan (sudah dibayar, tidak dibatalkan)
+    public const SALES_STATUSES = ['paid', 'processing', 'ready_for_delivery', 'on_delivery', 'completed'];
+
     public static function label(?string $status): string
     {
         return self::LABELS[$status] ?? (string) $status;

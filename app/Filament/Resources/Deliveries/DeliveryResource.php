@@ -9,6 +9,8 @@ use App\Filament\Resources\Deliveries\RelationManagers\OrdersRelationManager;
 use App\Models\Delivery;
 use App\Models\Order;
 use App\Models\User;
+use App\Models\DeliveryOrder;
+use App\Models\DriverProfile;
 use App\Support\DeliveryStatus;
 use BackedEnum;
 use Closure;
@@ -55,7 +57,8 @@ class DeliveryResource extends Resource
     {
         $aktif = DB::table('delivery_orders')
             ->join('deliveries', 'deliveries.delivery_id', '=', 'delivery_orders.delivery_id')
-            ->whereIn('deliveries.status', ['pending', 'on_the_way'])
+            ->whereNull('deliveries.cancelled_at')
+            ->whereIn('delivery_orders.status', DeliveryOrder::ACTIVE_STATUSES)
             ->select('delivery_orders.order_id');
 
         return Order::query()
@@ -76,6 +79,17 @@ class DeliveryResource extends Resource
         return 'warning';
     }
 
+    public static function driverOptions(bool $semua = false): array
+    {
+        return DriverProfile::query()
+            ->when(! $semua, fn($q) => $q->where('approval_status', 'approved'))
+            ->with('user:user_id,name')
+            ->get()
+            ->sortBy('user.name')
+            ->mapWithKeys(fn(DriverProfile $p) => [$p->driver_profile_id => $p->user?->name])
+            ->all();
+    }
+
     public static function muatan(array $orderIds): array
     {
         $grams = (int) Order::whereIn('order_id', $orderIds)->sum('total_weight_grams');
@@ -94,9 +108,9 @@ class DeliveryResource extends Resource
             Section::make('Buat Pengiriman')
                 ->description('Maksimal 3 pesanan dan total 50 kg per perjalanan.')
                 ->schema([
-                    Select::make('driver_id')
+                    Select::make('driver_profile_id')
                         ->label('Driver')
-                        ->options(fn() => User::where('role', 'driver')->orderBy('name')->pluck('name', 'user_id'))
+                        ->options(fn() => static::driverOptions())
                         ->searchable()
                         ->required(),
 
@@ -140,7 +154,7 @@ class DeliveryResource extends Resource
                         ->badge()
                         ->formatStateUsing(fn(string $state) => DeliveryStatus::label($state))
                         ->color(fn(string $state) => DeliveryStatus::color($state)),
-                    TextEntry::make('driver.name')->label('Driver'),
+                    TextEntry::make('driver.user.name')->label('Driver'),
                     TextEntry::make('muatan')
                         ->label('Muatan')
                         ->state(fn(Delivery $record) => static::muatan($record->orders->modelKeys())['text']),
@@ -155,11 +169,11 @@ class DeliveryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['driver', 'orders']))
+            ->modifyQueryUsing(fn(Builder $query) => $query->with(['driver.user', 'orders']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('delivery_number')->label('No. Pengiriman')->searchable()->copyable(),
-                TextColumn::make('driver.name')->label('Driver')->searchable(),
+                TextColumn::make('driver.user.name')->label('Driver')->searchable(),
                 TextColumn::make('orders_count')->label('Pesanan')->counts('orders'),
                 TextColumn::make('berat')
                     ->label('Berat')
@@ -172,10 +186,14 @@ class DeliveryResource extends Resource
                 TextColumn::make('completed_at')->label('Selesai')->dateTime('d M Y H:i')->placeholder('-'),
             ])
             ->filters([
-                SelectFilter::make('status')->options(DeliveryStatus::LABELS),
-                SelectFilter::make('driver_id')
+                SelectFilter::make('status')
+                    ->options(DeliveryStatus::LABELS)
+                    ->query(fn(Builder $query, array $data) => filled($data['value'] ?? null)
+                        ? $query->withStatus($data['value'])
+                        : $query),
+                SelectFilter::make('driver_profile_id')
                     ->label('Driver')
-                    ->options(fn() => User::where('role', 'driver')->pluck('name', 'user_id')),
+                    ->options(fn() => static::driverOptions(true)),
             ])
             ->recordActions([
                 ViewAction::make()->label('Detail'),

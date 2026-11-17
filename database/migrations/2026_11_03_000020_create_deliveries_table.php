@@ -10,16 +10,20 @@ return new class extends Migration
     {
         Schema::create('deliveries', function (Blueprint $table) {
             $table->id('delivery_id');
-            $table->foreignId('driver_id')
-                ->constrained('users', 'user_id')->restrictOnDelete();
+            $table->foreignId('driver_profile_id')
+                ->constrained('driver_profiles', 'driver_profile_id')
+                ->restrictOnDelete();
             $table->string('delivery_number', 50)->unique();
-            $table->enum('status', ['pending', 'on_the_way', 'completed', 'cancelled'])
-                ->default('pending');
             $table->dateTime('started_at')->nullable();
+            $table->dateTime('cancelled_at')->nullable();
             $table->dateTime('completed_at')->nullable();
             $table->timestamps();
 
-            $table->index(['driver_id', 'status']);
+            $table->index([
+                'driver_profile_id',
+                'completed_at',
+                'cancelled_at'
+            ]);
         });
     }
 

@@ -20,33 +20,35 @@ class ShoppingRequest extends Model
 
     protected $fillable = [
         'user_id',
-        'address_id',
         'market_id',
         'request_number',
+        'original_list',
         'notes',
+        'recipient_name',
+        'recipient_phone',
+        'shipping_address',
+        'shipping_latitude',
+        'shipping_longitude',
         'service_fee',
-        'goods_total',
-        'total_weight',
+        'total',
+        'total_weight_grams',
         'status',
     ];
 
     protected function casts(): array
     {
         return [
+            'shipping_latitude' => 'decimal:7',
+            'shipping_longitude' => 'decimal:7',
             'service_fee' => 'decimal:2',
-            'goods_total' => 'decimal:2',
-            'total_weight' => 'decimal:2',
+            'total' => 'decimal:2',
+            'total_weight_grams' => 'integer',
         ];
     }
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
-    }
-
-    public function address(): BelongsTo
-    {
-        return $this->belongsTo(Address::class, 'address_id', 'address_id');
     }
 
     public function market(): BelongsTo

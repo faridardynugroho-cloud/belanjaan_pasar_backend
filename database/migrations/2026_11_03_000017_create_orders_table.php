@@ -12,14 +12,11 @@ return new class extends Migration
             $table->id('order_id');
             $table->foreignId('user_id')
                 ->constrained('users', 'user_id')->restrictOnDelete();
-            $table->foreignId('address_id')->nullable()
-                ->constrained('addresses', 'address_id')->nullOnDelete();
             $table->foreignId('market_id')
                 ->constrained('markets', 'market_id')->restrictOnDelete();
             $table->foreignId('shopping_request_id')->nullable()->unique()
                 ->constrained('shopping_requests', 'shopping_request_id')->nullOnDelete();
             $table->string('order_number', 50)->unique();
-
             // snapshot alamat saat checkout
             $table->string('recipient_name');
             $table->string('recipient_phone', 20);

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('phone', 20)->nullable();
             $table->enum('gender', ['male', 'female'])->nullable();
             $table->date('birth_date')->nullable();
-            $table->text('address')->nullable();
             $table->enum('role', ['customer', 'admin', 'driver'])->default('customer');
             $table->rememberToken();
             $table->timestamps();

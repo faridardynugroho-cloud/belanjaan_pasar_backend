@@ -14,7 +14,7 @@ class Address extends Model
         'user_id',
         'label',
         'recipient_name',
-        'phone',
+        'recipient_phone',
         'full_address',
         'latitude',
         'longitude',
@@ -34,17 +34,6 @@ class Address extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
-
-    public function shoppingRequests(): HasMany
-    {
-        return $this->hasMany(ShoppingRequest::class, 'address_id', 'address_id');
-    }
-
-    public function orders(): HasMany
-    {
-        return $this->hasMany(Order::class, 'address_id', 'address_id');
-    }
-
     /** Market aktif terdekat dari koordinat alamat ini. */
     public function nearestMarket(): ?Market
     {

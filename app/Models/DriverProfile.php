@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DriverProfile extends Model
 {
@@ -11,8 +13,7 @@ class DriverProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'vehicle_type',
-        'vehicle_plate',
+        'domicile_address',
         'is_available',
         'approval_status',
         'rejection_reason',
@@ -41,5 +42,20 @@ class DriverProfile extends Model
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewed_by', 'user_id');
+    }
+
+    public function vehicle(): HasOne
+    {
+        return $this->hasOne(DriverVehicle::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    public function document(): HasOne
+    {
+        return $this->hasOne(DriverDocument::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    public function deliveries(): HasMany
+    {
+        return $this->hasMany(Delivery::class, 'driver_profile_id', 'driver_profile_id');
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
                 ->constrained('users', 'user_id')->cascadeOnDelete();
             $table->string('label', 50);
             $table->string('recipient_name');
-            $table->string('phone', 20);
+            $table->string('recipient_phone', 20);
             $table->text('full_address');
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);

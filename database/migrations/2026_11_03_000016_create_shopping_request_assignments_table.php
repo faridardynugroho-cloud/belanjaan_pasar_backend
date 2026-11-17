@@ -17,8 +17,6 @@ return new class extends Migration
             $table->foreignId('assigned_by')
                 ->constrained('users', 'user_id')->restrictOnDelete();
             $table->dateTime('assigned_at');
-            $table->enum('status', ['assigned', 'in_progress', 'completed', 'cancelled'])
-                ->default('assigned');
             $table->timestamps();
         });
     }
