@@ -15,6 +15,8 @@ class DriverProfile extends Model
         'user_id',
         'domicile_address',
         'is_available',
+        'rating_avg',
+        'rating_count',
         'approval_status',
         'rejection_reason',
         'reviewed_at',
@@ -25,7 +27,9 @@ class DriverProfile extends Model
     {
         return [
             'is_available' => 'boolean',
-            'reviewed_at' => 'datetime'
+            'reviewed_at' => 'datetime',
+            'rating_avg' => 'decimal:2',
+            'rating_count' => 'integer',
         ];
     }
 
@@ -37,6 +41,11 @@ class DriverProfile extends Model
     public function scopeAvailable($query)
     {
         return $query->where('is_available', true);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(DriverReview::class, 'driver_profile_id', 'driver_profile_id');
     }
 
     public function reviewer()

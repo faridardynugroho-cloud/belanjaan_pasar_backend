@@ -8,6 +8,7 @@ use App\Models\Helper;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\ShoppingRequest;
+use App\Services\ReviewService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
@@ -28,6 +29,21 @@ class ViewShoppingRequest extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('moderasiRating')
+                ->label(fn(ShoppingRequest $record) => $record->order?->shoppingReview?->is_visible
+                    ? 'Sembunyikan Rating'
+                    : 'Tampilkan Rating')
+                ->icon('heroicon-o-eye-slash')
+                ->color('gray')
+                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingReview !== null)
+                ->requiresConfirmation()
+                ->action(function (ShoppingRequest $record) {
+                    $review = $record->order->shoppingReview;
+
+                    ReviewService::setTampil($review, ! $review->is_visible);
+
+                    Notification::make()->title('Rating diperbarui')->success()->send();
+                }),
             // 1. Tugaskan helper
             Action::make('tugaskan')
                 ->label('Tugaskan Helper')

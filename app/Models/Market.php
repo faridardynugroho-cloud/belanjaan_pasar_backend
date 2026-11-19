@@ -60,12 +60,6 @@ class Market extends Model
         return $query->where('is_active', true);
     }
 
-    /**
-     * Urutkan market dari yang terdekat ke koordinat tertentu (Haversine, km).
-     * Menambahkan kolom `distance_km` pada hasil query.
-     *
-     * Contoh: Market::active()->nearestTo($lat, $lng)->first();
-     */
     public function scopeNearestTo(Builder $query, float $latitude, float $longitude): Builder
     {
         $distance = '(6371 * ACOS(LEAST(1, GREATEST(-1,

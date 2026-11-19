@@ -18,18 +18,27 @@ class Product extends Model
         'unit',
         'weight_grams',
         'image',
+        'rating_avg',
+        'rating_count',
     ];
 
     protected function casts(): array
     {
         return [
             'weight_grams' => 'integer',
+            'rating_avg' => 'decimal:2',
+            'rating_count' => 'integer',
         ];
     }
 
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id', 'category_id');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class, 'product_id', 'product_id');
     }
 
     public function marketProducts(): HasMany

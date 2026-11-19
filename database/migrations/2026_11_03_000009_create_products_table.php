@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('unit', 20);
             $table->unsignedInteger('weight_grams')->default(0);
             $table->string('image')->nullable();
+            $table->decimal('rating_avg', 3, 2)->default(0);
+            $table->unsignedInteger('rating_count')->default(0);
             $table->timestamps();
         });
     }
