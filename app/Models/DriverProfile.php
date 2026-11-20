@@ -67,4 +67,27 @@ class DriverProfile extends Model
     {
         return $this->hasMany(Delivery::class, 'driver_profile_id', 'driver_profile_id');
     }
+
+    public function violations(): HasMany
+    {
+        return $this->hasMany(DriverViolation::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    public function sanctions(): HasMany
+    {
+        return $this->hasMany(DriverSanction::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    /** Sanksi yang sedang memegang driver (berlaku atau menunggu mulai). Maksimal satu, dijaga DriverSanctionService. */
+    public function currentSanction(): HasOne
+    {
+        return $this->hasOne(DriverSanction::class, 'driver_profile_id', 'driver_profile_id')
+            ->ofMany('driver_sanction_id', 'max', fn ($query) => $query->open());
+    }
+
+    /** Total poin aktif: pelanggaran divalidasi yang belum kedaluwarsa. Tidak disimpan, selalu dihitung. */
+    public function activePoints(): int
+    {
+        return (int) $this->violations()->withActivePoints()->sum('points');
+    }
 }

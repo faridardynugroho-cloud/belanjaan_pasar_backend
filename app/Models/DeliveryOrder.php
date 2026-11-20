@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DeliveryOrder extends Model
@@ -59,5 +60,10 @@ class DeliveryOrder extends Model
     public function review(): HasOne
     {
         return $this->hasOne(DriverReview::class, 'delivery_order_id', 'delivery_order_id');
+    }
+
+    public function violations(): HasMany
+    {
+        return $this->hasMany(DriverViolation::class, 'delivery_order_id', 'delivery_order_id');
     }
 }
