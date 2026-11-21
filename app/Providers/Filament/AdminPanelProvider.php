@@ -58,8 +58,20 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsible(false),
 
                 NavigationGroup::make()
+                    ->label('Driver')
+                    ->icon('heroicon-o-user-circle')
+                    ->collapsible()
+                    ->collapsed(),
+
+                NavigationGroup::make()
                     ->label('Laporan')
                     ->icon('heroicon-o-chart-bar')
+                    ->collapsible()
+                    ->collapsed(),
+
+                NavigationGroup::make()
+                    ->label('Review')
+                    ->icon('heroicon-o-star')
                     ->collapsible()
                     ->collapsed(),
 

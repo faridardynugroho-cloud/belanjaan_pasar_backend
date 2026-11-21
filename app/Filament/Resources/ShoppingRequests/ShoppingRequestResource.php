@@ -145,18 +145,18 @@ class ShoppingRequestResource extends Resource
                         ->color('primary'),
                 ]),
             Section::make('Rating Customer')
-                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingReview !== null)
+                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
                 ->columns(3)
                 ->schema([
                     TextEntry::make('rating_bintang')
                         ->label('Rating')
-                        ->state(fn(ShoppingRequest $record) => Rating::bintang($record->order->shoppingReview->rating)),
+                        ->state(fn(ShoppingRequest $record) => Rating::bintang($record->order->shoppingRequestReview->rating)),
                     TextEntry::make('rating_status')
                         ->label('Status')
-                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingReview->is_visible ? 'Tampil' : 'Disembunyikan'),
+                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingRequestReview->is_visible ? 'Tampil' : 'Disembunyikan'),
                     TextEntry::make('rating_komentar')
                         ->label('Komentar')
-                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingReview->comment ?: '-')
+                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingRequestReview->comment ?: '-')
                         ->columnSpanFull(),
                 ]),
         ]);

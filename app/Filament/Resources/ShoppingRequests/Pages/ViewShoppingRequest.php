@@ -30,15 +30,15 @@ class ViewShoppingRequest extends ViewRecord
     {
         return [
             Action::make('moderasiRating')
-                ->label(fn(ShoppingRequest $record) => $record->order?->shoppingReview?->is_visible
+                ->label(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview?->is_visible
                     ? 'Sembunyikan Rating'
                     : 'Tampilkan Rating')
                 ->icon('heroicon-o-eye-slash')
                 ->color('gray')
-                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingReview !== null)
+                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
-                    $review = $record->order->shoppingReview;
+                    $review = $record->order->shoppingRequestReview;
 
                     ReviewService::setTampil($review, ! $review->is_visible);
 
