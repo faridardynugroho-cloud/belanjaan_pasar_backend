@@ -14,6 +14,8 @@ return new class extends Migration
                 ->constrained('users', 'user_id')->cascadeOnDelete();
             $table->text('domicile_address');
             $table->boolean('is_available')->default(false);
+            $table->decimal('rating_avg', 3, 2)->default(0);
+            $table->unsignedInteger('rating_count')->default(0);
             $table->enum('approval_status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('rejection_reason')->nullable();
             $table->dateTime('reviewed_at')->nullable();

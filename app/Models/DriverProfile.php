@@ -15,6 +15,8 @@ class DriverProfile extends Model
         'user_id',
         'domicile_address',
         'is_available',
+        'rating_avg',
+        'rating_count',
         'approval_status',
         'rejection_reason',
         'reviewed_at',
@@ -25,7 +27,9 @@ class DriverProfile extends Model
     {
         return [
             'is_available' => 'boolean',
-            'reviewed_at' => 'datetime'
+            'reviewed_at' => 'datetime',
+            'rating_avg' => 'decimal:2',
+            'rating_count' => 'integer',
         ];
     }
 
@@ -37,6 +41,11 @@ class DriverProfile extends Model
     public function scopeAvailable($query)
     {
         return $query->where('is_available', true);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(DriverReview::class, 'driver_profile_id', 'driver_profile_id');
     }
 
     public function reviewer()
@@ -57,5 +66,28 @@ class DriverProfile extends Model
     public function deliveries(): HasMany
     {
         return $this->hasMany(Delivery::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    public function violations(): HasMany
+    {
+        return $this->hasMany(DriverViolation::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    public function sanctions(): HasMany
+    {
+        return $this->hasMany(DriverSanction::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    /** Sanksi yang sedang memegang driver (berlaku atau menunggu mulai). Maksimal satu, dijaga DriverSanctionService. */
+    public function currentSanction(): HasOne
+    {
+        return $this->hasOne(DriverSanction::class, 'driver_profile_id', 'driver_profile_id')
+            ->ofMany('driver_sanction_id', 'max', fn ($query) => $query->open());
+    }
+
+    /** Total poin aktif: pelanggaran divalidasi yang belum kedaluwarsa. Tidak disimpan, selalu dihitung. */
+    public function activePoints(): int
+    {
+        return (int) $this->violations()->withActivePoints()->sum('points');
     }
 }

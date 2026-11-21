@@ -129,6 +129,18 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasMany(ShoppingRequestAssignment::class, 'assigned_by', 'user_id');
     }
 
+    public function driverReviews(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            DriverReview::class,
+            DriverProfile::class,
+            'user_id',
+            'driver_profile_id',
+            'user_id',
+            'driver_profile_id',
+        );
+    }
+
     public function canAccessPanel(Panel $panel): bool
     {
         return $panel->getId() === 'admin' && $this->isAdmin();

@@ -14,6 +14,9 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Toggle;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use UnitEnum;
 
 class CategoryResource extends Resource
@@ -46,6 +49,11 @@ class CategoryResource extends Resource
             Textarea::make('description')
                 ->label('Deskripsi')
                 ->rows(3),
+
+            Toggle::make('is_active')
+                ->label('Aktif')
+                ->default(true)
+                ->helperText('Kategori nonaktif tidak ditampilkan ke customer.'),
         ]);
     }
 
@@ -61,12 +69,20 @@ class CategoryResource extends Resource
                     ->counts('products')
                     ->suffix(' produk')
                     ->sortable(),
+                ToggleColumn::make('is_active')->label('Aktif'),
+            ])
+            ->filters([
+                TernaryFilter::make('is_active')
+                    ->label('Status')
+                    ->placeholder('Semua')
+                    ->trueLabel('Aktif')
+                    ->falseLabel('Nonaktif'),
             ])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->disabled(fn (Category $record) => $record->products()->exists())
-                    ->tooltip(fn (Category $record) => $record->products()->exists()
+                    ->disabled(fn(Category $record) => $record->products()->exists())
+                    ->tooltip(fn(Category $record) => $record->products()->exists()
                         ? 'Masih punya produk. Pindahkan atau hapus produknya dulu.'
                         : null)
                     ->before(function (DeleteAction $action, Category $record) {

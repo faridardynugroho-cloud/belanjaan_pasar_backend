@@ -101,6 +101,11 @@ class Order extends Model
             ->latestOfMany('delivery_order_id');
     }
 
+    public function shoppingRequestReview(): HasOne
+    {
+        return $this->hasOne(ShoppingRequestReview::class, 'order_id', 'order_id');
+    }
+
     public function isNgebelanjain(): bool
     {
         return $this->shopping_request_id !== null;

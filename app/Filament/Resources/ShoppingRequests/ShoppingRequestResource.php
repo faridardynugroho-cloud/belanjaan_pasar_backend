@@ -7,6 +7,7 @@ use App\Filament\Resources\ShoppingRequests\Pages\ListShoppingRequests;
 use App\Filament\Resources\ShoppingRequests\Pages\ViewShoppingRequest;
 use App\Models\ShoppingRequest;
 use App\Support\ShoppingRequestStatus;
+use App\Support\Rating;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -142,6 +143,21 @@ class ShoppingRequestResource extends Resource
                             ? OrderResource::getUrl('view', ['record' => $record->order])
                             : null)
                         ->color('primary'),
+                ]),
+            Section::make('Rating Customer')
+                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingReview !== null)
+                ->columns(3)
+                ->schema([
+                    TextEntry::make('rating_bintang')
+                        ->label('Rating')
+                        ->state(fn(ShoppingRequest $record) => Rating::bintang($record->order->shoppingReview->rating)),
+                    TextEntry::make('rating_status')
+                        ->label('Status')
+                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingReview->is_visible ? 'Tampil' : 'Disembunyikan'),
+                    TextEntry::make('rating_komentar')
+                        ->label('Komentar')
+                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingReview->comment ?: '-')
+                        ->columnSpanFull(),
                 ]),
         ]);
     }

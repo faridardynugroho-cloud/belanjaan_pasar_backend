@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class OrderItem extends Model
 {
@@ -36,6 +37,11 @@ class OrderItem extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class, 'order_id', 'order_id');
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(ProductReview::class, 'order_item_id', 'order_item_id');
     }
 
     /** Terisi jika barang berasal dari katalog marketplace. */
