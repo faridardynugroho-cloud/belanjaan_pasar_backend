@@ -10,11 +10,18 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
+        $email = config('admin.email');
+        $password = config('admin.password');
+
+        if (blank($email) || blank($password)) {
+            throw new \RuntimeException('ADMIN_EMAIL dan ADMIN_PASSWORD belum diisi di .env.');
+        }
+
         User::firstOrCreate(
-            ['email' => env('ADMIN_EMAIL')],
+            ['email' => $email],
             [
-                'name' => env('ADMIN_NAME'),
-                'password' => Hash::make(env('ADMIN_PASSWORD')),
+                'name' => config('admin.name'),
+                'password' => Hash::make($password),
                 'role' => User::ROLE_ADMIN,
             ]
         );
