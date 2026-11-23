@@ -11,6 +11,8 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 
 class OrderPengirimanRelationManager extends RelationManager
 {
@@ -33,6 +35,14 @@ class OrderPengirimanRelationManager extends RelationManager
             DeliveryOrder::STATUS_COMPLETED => 'Selesai',
             default => $status,
         };
+    }
+
+    protected static function urlFoto(string $path): string
+    {
+        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        $disk = Storage::disk('public');
+
+        return $disk->url($path);
     }
 
     public function table(Table $table): Table
@@ -78,7 +88,7 @@ class OrderPengirimanRelationManager extends RelationManager
                     ->placeholder('-')
                     ->description(fn(DeliveryOrder $record) => $record->review?->comment
                         ? \Illuminate\Support\Str::limit($record->review->comment, 40)
-                            . ($record->review->is_visible ? '' : ' (disembunyikan)')
+                        . ($record->review->is_visible ? '' : ' (disembunyikan)')
                         : null),
 
                 TextColumn::make('komplain_count')
@@ -106,19 +116,28 @@ class OrderPengirimanRelationManager extends RelationManager
                         'Alasan penolakan' => $record->rejection_reason,
                         'Berangkat' => RiwayatSanksiResource::tanggal($record->started_at),
                         'Selesai' => RiwayatSanksiResource::tanggal($record->completed_at),
+                        'Diterima oleh' => $record->labelPenerima(),
+                        'Catatan penerima' => $record->received_note,
+                        'Foto bukti' => $record->proof_photo
+                            ? new HtmlString(
+                                '<a href="' . e(static::urlFoto($record->proof_photo)) . '" target="_blank" rel="noopener">'
+                                    . '<img src="' . e(static::urlFoto($record->proof_photo)) . '" alt="Foto bukti" style="max-width:240px;border-radius:8px">'
+                                    . '</a>'
+                            )
+                            : null,
                         'Rating' => $record->review ? '★ ' . $record->review->rating . ($record->review->is_visible ? '' : ' (review disembunyikan)') : null,
                         'Review customer' => $record->review?->comment,
                         'Komplain' => $record->violations->isEmpty()
                             ? null
                             : $record->violations
-                                ->map(fn(DriverViolation $v) => ($v->source === DriverViolation::SOURCE_CUSTOMER ? 'Customer' : 'Admin')
-                                    . ': ' . $v->violationType?->name . ' (' . match ($v->status) {
-                                        DriverViolation::STATUS_REPORTED => 'menunggu validasi',
-                                        DriverViolation::STATUS_VALIDATED => 'divalidasi',
-                                        DriverViolation::STATUS_REJECTED => 'ditolak',
-                                        default => 'dibatalkan',
-                                    } . ') ' . $v->description)
-                                ->implode("\n"),
+                            ->map(fn(DriverViolation $v) => ($v->source === DriverViolation::SOURCE_CUSTOMER ? 'Customer' : 'Admin')
+                                . ': ' . $v->violationType?->name . ' (' . match ($v->status) {
+                                    DriverViolation::STATUS_REPORTED => 'menunggu validasi',
+                                    DriverViolation::STATUS_VALIDATED => 'divalidasi',
+                                    DriverViolation::STATUS_REJECTED => 'ditolak',
+                                    default => 'dibatalkan',
+                                } . ') ' . $v->description)
+                            ->implode("\n"),
                     ])),
             ]);
     }

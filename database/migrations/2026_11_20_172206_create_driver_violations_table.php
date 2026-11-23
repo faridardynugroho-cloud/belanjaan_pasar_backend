@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('reported_by')
                 ->constrained('users', 'user_id')->restrictOnDelete();
             $table->text('description');
-            $table->string('evidence_path')->nullable();
+            $table->string('evidence_photo')->nullable();
             $table->enum('status', ['reported', 'validated', 'rejected', 'revoked'])
                 ->default('reported');
 

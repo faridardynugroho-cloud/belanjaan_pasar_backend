@@ -6,7 +6,6 @@ use App\Filament\Resources\Drivers\RiwayatPengiriman\Pages\ListRiwayatPengiriman
 use App\Filament\Resources\Drivers\RiwayatPengiriman\Pages\ViewRiwayatPengiriman;
 use App\Filament\Resources\Drivers\RiwayatPengiriman\RelationManagers\OrderPengirimanRelationManager;
 use App\Filament\Resources\Drivers\RiwayatPengiriman\Widgets\PerformaDriverTable;
-use App\Filament\Resources\Laporan\Driver\LaporanDriverResource;
 use App\Models\Delivery;
 use App\Support\DeliveryStatus;
 use Filament\Actions\ViewAction;
@@ -114,9 +113,20 @@ class RiwayatPengirimanResource extends Resource
         return (int) round($trip->started_at->diffInMinutes($trip->completed_at));
     }
 
-    public static function labelDurasi(Delivery $trip): string
+        public static function labelDurasi(Delivery $trip): string
     {
-        return LaporanDriverResource::formatDurasi(static::durasiMenit($trip));
+        return static::formatDurasi(static::durasiMenit($trip));
+    }
+
+    public static function formatDurasi($menit): string
+    {
+        if ($menit === null) {
+            return '-';
+        }
+
+        $menit = (int) round($menit);
+
+        return $menit >= 60 ? intdiv($menit, 60) . ' j ' . ($menit % 60) . ' m' : $menit . ' m';
     }
 
     public static function labelBerat($gram): string

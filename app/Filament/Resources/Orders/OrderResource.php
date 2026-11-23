@@ -105,6 +105,10 @@ class OrderResource extends Resource
                                 ->state(fn ($record) => (float) $record->quantity . ' ' . $record->unit),
                             TextEntry::make('unit_price')->label('Harga Satuan')->money('IDR', locale: 'id', decimalPlaces: 0),
                             TextEntry::make('subtotal')->label('Subtotal')->money('IDR', locale: 'id', decimalPlaces: 0),
+                            TextEntry::make('note')
+                                ->label('Catatan customer')
+                                ->columnSpanFull()
+                                ->visible(fn ($record) => filled($record->note)),
                         ]),
                 ]),
 

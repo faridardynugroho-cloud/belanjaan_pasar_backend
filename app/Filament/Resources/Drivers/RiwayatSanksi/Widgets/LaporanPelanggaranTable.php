@@ -159,8 +159,8 @@ class LaporanPelanggaranTable extends TableWidget
                         'Pelapor' => $record->reporter?->name,
                         'Pengantaran' => $record->delivery_order_id ? '#' . $record->delivery_order_id : null,
                         'Deskripsi' => $record->description,
-                        'Bukti' => $record->evidence_path
-                            ? new HtmlString('<a href="' . e(static::urlBukti($record->evidence_path)) . '" target="_blank" rel="noopener" style="color:var(--primary-600);text-decoration:underline">Buka bukti</a>')
+                        'Bukti' => $record->evidence_photo
+                            ? new HtmlString('<a href="' . e(static::urlBukti($record->evidence_photo)) . '" target="_blank" rel="noopener" style="color:var(--primary-600);text-decoration:underline">Buka bukti</a>')
                             : null,
                         'Status' => static::labelStatus($record->status),
                         'Poin' => $record->points,

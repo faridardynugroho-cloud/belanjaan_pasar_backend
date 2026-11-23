@@ -16,7 +16,10 @@ return new class extends Migration
                 ->constrained('markets', 'market_id')->restrictOnDelete();
             $table->foreignId('shopping_request_id')->nullable()->unique()
                 ->constrained('shopping_requests', 'shopping_request_id')->nullOnDelete();
+            $table->foreignId('voucher_id')->nullable()
+                ->constrained('vouchers', 'voucher_id')->nullOnDelete();
             $table->string('order_number', 50)->unique();
+            $table->string('voucher_code', 50)->nullable();
             // snapshot alamat saat checkout
             $table->string('recipient_name');
             $table->string('recipient_phone', 20);
@@ -25,12 +28,19 @@ return new class extends Migration
             $table->decimal('shipping_longitude', 10, 7);
 
             $table->decimal('subtotal', 12, 2)->default(0);
+            $table->decimal('voucher_discount', 12, 2)->default(0);
             $table->decimal('delivery_fee', 12, 2)->default(0);
+            $table->decimal('delivery_discount', 12, 2)->default(0);
             $table->decimal('grand_total', 12, 2)->default(0);
             $table->unsignedInteger('total_weight_grams')->default(0);
             $table->enum('status', [
-                'pending_payment', 'paid', 'processing',
-                'ready_for_delivery', 'on_delivery', 'completed', 'cancelled',
+                'pending_payment',
+                'paid',
+                'processing',
+                'ready_for_delivery',
+                'on_delivery',
+                'completed',
+                'cancelled',
             ])->default('pending_payment');
             $table->timestamps();
 

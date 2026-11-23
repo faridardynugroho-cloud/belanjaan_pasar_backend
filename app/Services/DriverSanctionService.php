@@ -51,7 +51,7 @@ class DriverSanctionService
                 'source' => DriverViolation::SOURCE_CUSTOMER,
                 'reported_by' => $customer->getKey(),
                 'description' => $deskripsi,
-                'evidence_path' => $buktiPath,
+                'evidence_photo' => $buktiPath,
                 'status' => DriverViolation::STATUS_REPORTED,
             ]);
         });
@@ -84,7 +84,7 @@ class DriverSanctionService
             'source' => DriverViolation::SOURCE_ADMIN,
             'reported_by' => $admin->getKey(),
             'description' => $deskripsi,
-            'evidence_path' => $buktiPath,
+            'evidence_photo' => $buktiPath,
             'status' => DriverViolation::STATUS_REPORTED,
         ]);
     }

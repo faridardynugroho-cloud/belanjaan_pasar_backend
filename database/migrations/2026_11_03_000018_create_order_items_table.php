@@ -16,13 +16,18 @@ return new class extends Migration
                 ->constrained('market_products', 'market_product_id')->nullOnDelete();
             $table->foreignId('shopping_request_item_id')->nullable()
                 ->constrained('shopping_request_items', 'shopping_request_item_id')->nullOnDelete();
+            $table->foreignId('product_discount_id')->nullable()
+                ->constrained('product_discounts', 'product_discount_id')->nullOnDelete();
             $table->string('product_name');
             $table->string('unit', 20);
             $table->decimal('quantity', 10, 2);
+            $table->decimal('original_price', 12, 2)->default(0);
+            $table->decimal('discount_amount', 12, 2)->default(0);
             $table->decimal('unit_price', 12, 2);
             $table->decimal('subtotal', 12, 2);
             $table->unsignedInteger('weight_grams')->default(0);
             $table->unsignedInteger('total_weight_grams')->default(0);
+            $table->string('note')->nullable();
             $table->timestamps();
         });
     }

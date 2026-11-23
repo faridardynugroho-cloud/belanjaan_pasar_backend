@@ -76,6 +76,12 @@ class AdminPanelProvider extends PanelProvider
                     ->collapsed(),
 
                 NavigationGroup::make()
+                    ->label('Promo')
+                    ->icon('heroicon-o-ticket')
+                    ->collapsible()
+                    ->collapsed(),
+
+                NavigationGroup::make()
                     ->label('LAINNYA')
                     ->collapsible(false),
             ]);
