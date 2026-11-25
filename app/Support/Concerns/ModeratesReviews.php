@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 trait ModeratesReviews
 {
-    protected function aksiModerasi(): Action
+    protected static function aksiModerasi(): Action
     {
         return Action::make('moderasi')
             ->label(fn (Model $record) => $record->is_visible ? 'Sembunyikan' : 'Tampilkan')

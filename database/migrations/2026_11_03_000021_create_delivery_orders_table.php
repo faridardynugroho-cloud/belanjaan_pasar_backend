@@ -22,6 +22,11 @@ return new class extends Migration
             $table->dateTime('rejected_at')->nullable();
             $table->dateTime('started_at')->nullable();
             $table->dateTime('completed_at')->nullable();
+            $table->string('proof_photo')->nullable();
+            $table->enum('received_by', [
+                'customer', 'family', 'neighbor', 'front_porch', 'fence', 'shoe_rack',
+            ])->nullable();
+            $table->string('received_note')->nullable();
             $table->timestamps();
 
             $table->unique(['delivery_id', 'order_id']);

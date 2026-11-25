@@ -51,7 +51,7 @@ class DriverSanctionService
                 'source' => DriverViolation::SOURCE_CUSTOMER,
                 'reported_by' => $customer->getKey(),
                 'description' => $deskripsi,
-                'evidence_path' => $buktiPath,
+                'evidence_photo' => $buktiPath,
                 'status' => DriverViolation::STATUS_REPORTED,
             ]);
         });
@@ -84,7 +84,7 @@ class DriverSanctionService
             'source' => DriverViolation::SOURCE_ADMIN,
             'reported_by' => $admin->getKey(),
             'description' => $deskripsi,
-            'evidence_path' => $buktiPath,
+            'evidence_photo' => $buktiPath,
             'status' => DriverViolation::STATUS_REPORTED,
         ]);
     }
@@ -153,7 +153,11 @@ class DriverSanctionService
         });
     }
 
-    /** Batalkan validasi yang salah. Poin hilang, tapi sanksi yang sudah terlanjur dijatuhkan tidak otomatis dicabut. */
+    /**
+     * Batalkan validasi yang salah. Poin hilang dan sanksi yang dipicu laporan ini ikut dicabut.
+     * Poin dan sanksi dari laporan lain tidak disentuh. Sanksi lama yang sempat diganti oleh sanksi
+     * ini dipulihkan selama belum berakhir dan laporan asalnya masih berlaku.
+     */
     public static function batalkanValidasi(User $admin, DriverViolation $laporan, string $catatan): DriverViolation
     {
         if (trim($catatan) === '') {
@@ -161,7 +165,7 @@ class DriverSanctionService
         }
 
         return DB::transaction(function () use ($admin, $laporan, $catatan) {
-            self::kunciDriver($laporan->driver_profile_id);
+            $driver = self::kunciDriver($laporan->driver_profile_id);
             $row = DriverViolation::findOrFail($laporan->getKey());
 
             if ($row->status !== DriverViolation::STATUS_VALIDATED) {
@@ -174,6 +178,8 @@ class DriverSanctionService
                 'revoked_at' => now(),
                 'revoke_note' => $catatan,
             ]);
+
+            self::cabutSanksiDariLaporan($admin, $driver, $row, $catatan);
 
             return $row->refresh();
         });
@@ -401,6 +407,63 @@ class DriverSanctionService
         return DeliveryOrder::whereIn('status', [DeliveryOrder::STATUS_ACCEPTED, DeliveryOrder::STATUS_ON_THE_WAY])
             ->whereHas('delivery', fn ($q) => $q->where('driver_profile_id', $driver->getKey()))
             ->exists();
+    }
+
+    /** Cabut sanksi yang dipicu laporan ini, lalu pulihkan sanksi lama yang sempat digantikannya. */
+    private static function cabutSanksiDariLaporan(User $admin, DriverProfile $driver, DriverViolation $laporan, string $catatan): void
+    {
+        $sanksiList = DriverSanction::where('driver_violation_id', $laporan->getKey())
+            ->open()
+            ->get();
+
+        foreach ($sanksiList as $sanksi) {
+            $sanksi->update([
+                'lifted_at' => now(),
+                'lift_reason' => DriverSanction::LIFT_MANUAL,
+                'lifted_by' => $admin->getKey(),
+                'lift_note' => "Validasi pelanggaran #{$laporan->getKey()} dibatalkan: {$catatan}",
+            ]);
+
+            self::pulihkanSanksiYangDiganti($sanksi);
+        }
+
+        // Sanksi yang dipulihkan bisa saja masih menunggu, mulai kalau driver sudah tidak punya pesanan aktif.
+        self::mulaiSanksiMenunggu($driver);
+    }
+
+    /** Hidupkan lagi sanksi lama yang digantikan sanksi ini, kalau masih layak berlaku. */
+    private static function pulihkanSanksiYangDiganti(DriverSanction $sanksi): void
+    {
+        $lama = DriverSanction::with('violation')
+            ->where('replaced_by', $sanksi->getKey())
+            ->where('lift_reason', DriverSanction::LIFT_REPLACED)
+            ->orderByDesc('driver_sanction_id')
+            ->first();
+
+        if (! $lama) {
+            return;
+        }
+
+        // Sudah berakhir sendiri.
+        $sudahBerakhir = $lama->started_at !== null
+            && $lama->expires_at !== null
+            && $lama->expires_at->isPast();
+
+        // Laporan asalnya sendiri sudah tidak berlaku (ditolak atau dibatalkan). Sanksi manual (tanpa laporan) tetap boleh.
+        $laporanAsal = $lama->violation;
+        $laporanMasihBerlaku = $laporanAsal === null
+            || $laporanAsal->status === DriverViolation::STATUS_VALIDATED;
+
+        if ($sudahBerakhir || ! $laporanMasihBerlaku) {
+            return;
+        }
+
+        $lama->update([
+            'lifted_at' => null,
+            'lift_reason' => null,
+            'lifted_by' => null,
+            'replaced_by' => null,
+        ]);
     }
 
     private static function pastikanJenisAktif(ViolationType $jenis): void

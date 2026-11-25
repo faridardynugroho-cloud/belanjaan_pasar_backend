@@ -15,6 +15,7 @@ return new class extends Migration
             $table->foreignId('market_product_id')
                 ->constrained('market_products', 'market_product_id')->cascadeOnDelete();
             $table->decimal('quantity', 10, 2);
+            $table->string('note')->nullable();
             $table->timestamps();
 
             $table->unique(['cart_id', 'market_product_id']);

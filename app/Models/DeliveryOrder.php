@@ -15,6 +15,22 @@ class DeliveryOrder extends Model
     public const STATUS_ON_THE_WAY = 'on_the_way';
     public const STATUS_COMPLETED = 'completed';
 
+    public const RECEIVED_CUSTOMER = 'customer';
+    public const RECEIVED_FAMILY = 'family';
+    public const RECEIVED_NEIGHBOR = 'neighbor';
+    public const RECEIVED_FRONT_PORCH = 'front_porch';
+    public const RECEIVED_FENCE = 'fence';
+    public const RECEIVED_SHOE_RACK = 'shoe_rack';
+
+    public const RECEIVED_LABELS = [
+        self::RECEIVED_CUSTOMER => 'Diterima langsung oleh customer',
+        self::RECEIVED_FAMILY => 'Diterima keluarga/kerabat',
+        self::RECEIVED_NEIGHBOR => 'Diterima tetangga',
+        self::RECEIVED_FRONT_PORCH => 'Diletakkan di depan teras',
+        self::RECEIVED_FENCE => 'Digantung di pagar',
+        self::RECEIVED_SHOE_RACK => 'Diletakkan di atas rak sepatu',
+    ];
+
     /** Status yang masih "memegang" pesanan: pesanan ini tidak boleh ditawarkan ke perjalanan lain. */
     public const ACTIVE_STATUSES = [
         self::STATUS_PENDING,
@@ -34,6 +50,9 @@ class DeliveryOrder extends Model
         'rejected_at',
         'started_at',
         'completed_at',
+        'proof_photo',
+        'received_by',
+        'received_note',
     ];
 
     protected function casts(): array
@@ -65,5 +84,10 @@ class DeliveryOrder extends Model
     public function violations(): HasMany
     {
         return $this->hasMany(DriverViolation::class, 'delivery_order_id', 'delivery_order_id');
+    }
+
+    public function labelPenerima(): ?string
+    {
+        return $this->received_by ? (self::RECEIVED_LABELS[$this->received_by] ?? $this->received_by) : null;
     }
 }

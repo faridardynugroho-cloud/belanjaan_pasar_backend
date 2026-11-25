@@ -13,6 +13,7 @@ class CartItem extends Model
         'cart_id',
         'market_product_id',
         'quantity',
+        'note',
     ];
 
     protected function casts(): array

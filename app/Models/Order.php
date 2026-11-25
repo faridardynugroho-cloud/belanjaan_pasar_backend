@@ -35,6 +35,10 @@ class Order extends Model
         'grand_total',
         'total_weight_grams',
         'status',
+        'voucher_id',
+        'voucher_code',
+        'voucher_discount',
+        'delivery_discount',
     ];
 
     protected function casts(): array
@@ -46,6 +50,8 @@ class Order extends Model
             'delivery_fee' => 'decimal:2',
             'grand_total' => 'decimal:2',
             'total_weight_grams' => 'integer',
+            'voucher_discount' => 'decimal:2',
+            'delivery_discount' => 'decimal:2',
         ];
     }
 
@@ -73,6 +79,16 @@ class Order extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class, 'order_id', 'order_id');
+    }
+
+    public function voucher(): BelongsTo
+    {
+        return $this->belongsTo(Voucher::class, 'voucher_id', 'voucher_id');
+    }
+
+    public function voucherUsage(): HasOne
+    {
+        return $this->hasOne(VoucherUsage::class, 'order_id', 'order_id');
     }
 
     public function latestPayment(): HasOne

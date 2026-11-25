@@ -26,7 +26,7 @@ class DriverViolation extends Model
         'source',
         'reported_by',
         'description',
-        'evidence_path',
+        'evidence_photo',
         'status',
         'points',
         'handled_by',

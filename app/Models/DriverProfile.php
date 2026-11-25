@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DriverProfile extends Model
 {
+    // Status pendaftaran: pending (menunggu diperiksa), revision (diminta perbaiki dokumen), approved, rejected
+    public const APPROVAL_PENDING = 'pending';
+    public const APPROVAL_REVISION = 'revision';
+    public const APPROVAL_APPROVED = 'approved';
+    public const APPROVAL_REJECTED = 'rejected';
+
     protected $primaryKey = 'driver_profile_id';
 
     protected $fillable = [
@@ -61,6 +67,11 @@ class DriverProfile extends Model
     public function document(): HasOne
     {
         return $this->hasOne(DriverDocument::class, 'driver_profile_id', 'driver_profile_id');
+    }
+
+    public function documentChecks(): HasMany
+    {
+        return $this->hasMany(DriverDocumentCheck::class, 'driver_profile_id', 'driver_profile_id');
     }
 
     public function deliveries(): HasMany

@@ -18,9 +18,13 @@ class OrderItem extends Model
         'unit',
         'quantity',
         'unit_price',
+        'original_price',
+        'discount_amount',
+        'product_discount_id',
         'subtotal',
         'weight_grams',
         'total_weight_grams',
+        'note',
     ];
 
     protected function casts(): array
@@ -28,6 +32,8 @@ class OrderItem extends Model
         return [
             'quantity' => 'decimal:2',
             'unit_price' => 'decimal:2',
+            'original_price' => 'decimal:2',
+            'discount_amount' => 'decimal:2',
             'subtotal' => 'decimal:2',
             'weight_grams' => 'integer',
             'total_weight_grams' => 'integer',
@@ -48,6 +54,11 @@ class OrderItem extends Model
     public function marketProduct(): BelongsTo
     {
         return $this->belongsTo(MarketProduct::class, 'market_product_id', 'market_product_id');
+    }
+
+    public function productDiscount(): BelongsTo
+    {
+        return $this->belongsTo(ProductDiscount::class, 'product_discount_id', 'product_discount_id');
     }
 
     /** Terisi jika barang berasal dari hasil belanja Ngebelanjain. */

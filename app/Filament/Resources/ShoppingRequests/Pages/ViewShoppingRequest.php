@@ -30,15 +30,15 @@ class ViewShoppingRequest extends ViewRecord
     {
         return [
             Action::make('moderasiRating')
-                ->label(fn(ShoppingRequest $record) => $record->order?->shoppingReview?->is_visible
+                ->label(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview?->is_visible
                     ? 'Sembunyikan Rating'
                     : 'Tampilkan Rating')
                 ->icon('heroicon-o-eye-slash')
                 ->color('gray')
-                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingReview !== null)
+                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
-                    $review = $record->order->shoppingReview;
+                    $review = $record->order->shoppingRequestReview;
 
                     ReviewService::setTampil($review, ! $review->is_visible);
 
@@ -244,6 +244,7 @@ class ViewShoppingRequest extends ViewRecord
                                     'product_name' => $item->name,
                                     'unit' => $item->unit,
                                     'quantity' => $item->quantity,
+                                    'original_price' => $item->unit_price,
                                     'unit_price' => $item->unit_price,
                                     'subtotal' => $item->subtotal,
                                     'weight_grams' => $item->weight_grams,
@@ -256,6 +257,7 @@ class ViewShoppingRequest extends ViewRecord
                                 'product_name' => 'Belanjaan Titipan (Ngebelanjain)',
                                 'unit' => 'paket',
                                 'quantity' => 1,
+                                'original_price' => $req->total,
                                 'unit_price' => $req->total,
                                 'subtotal' => $req->total,
                                 'weight_grams' => $grams,
