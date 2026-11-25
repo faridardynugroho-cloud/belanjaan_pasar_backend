@@ -7,10 +7,9 @@ use App\Filament\Resources\Deliveries\Pages\ListDeliveries;
 use App\Filament\Resources\Deliveries\Pages\ViewDelivery;
 use App\Filament\Resources\Deliveries\RelationManagers\OrdersRelationManager;
 use App\Models\Delivery;
-use App\Models\Order;
-use App\Models\User;
 use App\Models\DeliveryOrder;
 use App\Models\DriverProfile;
+use App\Models\Order;
 use App\Support\DeliveryStatus;
 use BackedEnum;
 use Closure;
@@ -36,13 +35,13 @@ class DeliveryResource extends Resource
 
     protected static ?string $model = Delivery::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'MENU UTAMA';
+    protected static string|UnitEnum|null $navigationGroup = 'MENU UTAMA';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Pengiriman';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-truck';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $modelLabel = 'Pengiriman';
 
@@ -82,11 +81,11 @@ class DeliveryResource extends Resource
     public static function driverOptions(bool $semua = false): array
     {
         return DriverProfile::query()
-            ->when(! $semua, fn($q) => $q->where('approval_status', 'approved'))
+            ->when(! $semua, fn ($q) => $q->where('approval_status', 'approved'))
             ->with('user:user_id,name')
             ->get()
             ->sortBy('user.name')
-            ->mapWithKeys(fn(DriverProfile $p) => [$p->driver_profile_id => $p->user?->name])
+            ->mapWithKeys(fn (DriverProfile $p) => [$p->driver_profile_id => $p->user?->name])
             ->all();
     }
 
@@ -96,8 +95,8 @@ class DeliveryResource extends Resource
         $count = count($orderIds);
 
         return [
-            'text' => "{$count}/" . self::MAX_ORDERS . ' pesanan · '
-                . number_format($grams / 1000, 2, ',', '.') . '/' . (self::MAX_GRAMS / 1000) . ' kg',
+            'text' => "{$count}/".self::MAX_ORDERS.' pesanan · '
+                .number_format($grams / 1000, 2, ',', '.').'/'.(self::MAX_GRAMS / 1000).' kg',
             'over' => $count > self::MAX_ORDERS || $grams > self::MAX_GRAMS,
         ];
     }
@@ -110,24 +109,24 @@ class DeliveryResource extends Resource
                 ->schema([
                     Select::make('driver_profile_id')
                         ->label('Driver')
-                        ->options(fn() => static::driverOptions())
+                        ->options(fn () => static::driverOptions())
                         ->searchable()
                         ->required(),
 
                     Select::make('order_ids')
                         ->label('Pesanan siap kirim')
                         ->multiple()
-                        ->options(fn() => static::availableOrdersQuery()
+                        ->options(fn () => static::availableOrdersQuery()
                             ->get()
-                            ->mapWithKeys(fn(Order $o) => [
+                            ->mapWithKeys(fn (Order $o) => [
                                 $o->order_id => "{$o->order_number} · {$o->recipient_name} · "
-                                    . number_format($o->total_weight_grams / 1000, 2, ',', '.') . ' kg',
+                                    .number_format($o->total_weight_grams / 1000, 2, ',', '.').' kg',
                             ]))
                         ->maxItems(self::MAX_ORDERS)
                         ->live()
                         ->required()
                         ->rules([
-                            static fn() => function (string $attribute, $value, Closure $fail) {
+                            static fn () => function (string $attribute, $value, Closure $fail) {
                                 if (static::muatan((array) $value)['over']) {
                                     $fail('Muatan melebihi batas 3 pesanan / 50 kg.');
                                 }
@@ -136,8 +135,8 @@ class DeliveryResource extends Resource
 
                     TextEntry::make('muatan')
                         ->label('Muatan terpilih')
-                        ->state(fn(Get $get) => static::muatan((array) $get('order_ids'))['text'])
-                        ->color(fn(Get $get) => static::muatan((array) $get('order_ids'))['over'] ? 'danger' : 'success')
+                        ->state(fn (Get $get) => static::muatan((array) $get('order_ids'))['text'])
+                        ->color(fn (Get $get) => static::muatan((array) $get('order_ids'))['over'] ? 'danger' : 'success')
                         ->weight('bold'),
                 ]),
         ]);
@@ -152,16 +151,15 @@ class DeliveryResource extends Resource
                     TextEntry::make('delivery_number')->label('No. Pengiriman')->copyable(),
                     TextEntry::make('status')
                         ->badge()
-                        ->formatStateUsing(fn(string $state) => DeliveryStatus::label($state))
-                        ->color(fn(string $state) => DeliveryStatus::color($state)),
+                        ->formatStateUsing(fn (string $state) => DeliveryStatus::label($state))
+                        ->color(fn (string $state) => DeliveryStatus::color($state)),
                     TextEntry::make('driver.user.name')->label('Driver'),
                     TextEntry::make('muatan')
                         ->label('Muatan')
-                        ->state(fn(Delivery $record) => static::muatan($record->orders->modelKeys())['text']),
+                        ->state(fn (Delivery $record) => static::muatan($record->orders->modelKeys())['text']),
                     TextEntry::make('started_at')->label('Berangkat')->dateTime('d M Y H:i')->placeholder('-'),
                     TextEntry::make('completed_at')->label('Selesai')->dateTime('d M Y H:i')->placeholder('-'),
                 ]),
-
 
         ]);
     }
@@ -169,7 +167,7 @@ class DeliveryResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['driver.user', 'orders']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['driver.user', 'orders']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('delivery_number')->label('No. Pengiriman')->searchable()->copyable(),
@@ -177,23 +175,23 @@ class DeliveryResource extends Resource
                 TextColumn::make('orders_count')->label('Pesanan')->counts('orders'),
                 TextColumn::make('berat')
                     ->label('Berat')
-                    ->state(fn(Delivery $record) => number_format($record->orders->sum('total_weight_grams') / 1000, 2, ',', '.') . ' kg'),
+                    ->state(fn (Delivery $record) => number_format($record->orders->sum('total_weight_grams') / 1000, 2, ',', '.').' kg'),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => DeliveryStatus::label($state))
-                    ->color(fn(string $state) => DeliveryStatus::color($state)),
+                    ->formatStateUsing(fn (string $state) => DeliveryStatus::label($state))
+                    ->color(fn (string $state) => DeliveryStatus::color($state)),
                 TextColumn::make('started_at')->label('Berangkat')->dateTime('d M Y H:i')->placeholder('-'),
                 TextColumn::make('completed_at')->label('Selesai')->dateTime('d M Y H:i')->placeholder('-'),
             ])
             ->filters([
                 SelectFilter::make('status')
                     ->options(DeliveryStatus::LABELS)
-                    ->query(fn(Builder $query, array $data) => filled($data['value'] ?? null)
+                    ->query(fn (Builder $query, array $data) => filled($data['value'] ?? null)
                         ? $query->withStatus($data['value'])
                         : $query),
                 SelectFilter::make('driver_profile_id')
                     ->label('Driver')
-                    ->options(fn() => static::driverOptions(true)),
+                    ->options(fn () => static::driverOptions(true)),
             ])
             ->recordActions([
                 ViewAction::make()->label('Detail'),

@@ -9,27 +9,27 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 use UnitEnum;
 
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'MANAJEMEN DATA';
+    protected static string|UnitEnum|null $navigationGroup = 'MANAJEMEN DATA';
 
     protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Kategori';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
     protected static ?string $modelLabel = 'Kategori';
 
@@ -81,8 +81,8 @@ class CategoryResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->disabled(fn(Category $record) => $record->products()->exists())
-                    ->tooltip(fn(Category $record) => $record->products()->exists()
+                    ->disabled(fn (Category $record) => $record->products()->exists())
+                    ->tooltip(fn (Category $record) => $record->products()->exists()
                         ? 'Masih punya produk. Pindahkan atau hapus produknya dulu.'
                         : null)
                     ->before(function (DeleteAction $action, Category $record) {

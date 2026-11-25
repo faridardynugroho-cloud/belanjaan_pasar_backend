@@ -25,7 +25,7 @@ class LaporanNgebelanjainResource extends Resource
 
     protected static ?string $slug = 'laporan/ngebelanjain';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Laporan';
+    protected static string|UnitEnum|null $navigationGroup = 'Laporan';
 
     protected static ?int $navigationSort = 2;
 

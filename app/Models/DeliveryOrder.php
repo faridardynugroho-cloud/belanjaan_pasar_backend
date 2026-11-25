@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,17 +10,28 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class DeliveryOrder extends Model
 {
+    use HasFactory;
+
     public const STATUS_PENDING = 'pending';       // ditawarkan, belum dijawab driver
+
     public const STATUS_ACCEPTED = 'accepted';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_ON_THE_WAY = 'on_the_way';
+
     public const STATUS_COMPLETED = 'completed';
 
     public const RECEIVED_CUSTOMER = 'customer';
+
     public const RECEIVED_FAMILY = 'family';
+
     public const RECEIVED_NEIGHBOR = 'neighbor';
+
     public const RECEIVED_FRONT_PORCH = 'front_porch';
+
     public const RECEIVED_FENCE = 'fence';
+
     public const RECEIVED_SHOE_RACK = 'shoe_rack';
 
     public const RECEIVED_LABELS = [

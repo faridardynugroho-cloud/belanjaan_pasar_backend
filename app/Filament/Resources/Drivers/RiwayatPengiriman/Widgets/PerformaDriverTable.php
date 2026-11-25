@@ -5,14 +5,14 @@ namespace App\Filament\Resources\Drivers\RiwayatPengiriman\Widgets;
 use App\Filament\Resources\Drivers\RiwayatPengiriman\RiwayatPengirimanResource;
 use App\Models\DriverProfile;
 use App\Support\Concerns\HasRentangTanggal;
+use App\Support\LaporanExporter;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
-use App\Support\LaporanExporter;
-use Filament\Actions\Action;
 use Illuminate\Support\Str;
 
 /** Statistik performa per driver untuk satu periode (default bulan ini). */
@@ -22,12 +22,12 @@ class PerformaDriverTable extends TableWidget
 
     protected static ?string $heading = 'Performa Driver';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => DriverProfile::query()
+            ->query(fn (): Builder => DriverProfile::query()
                 ->where('approval_status', DriverProfile::APPROVAL_APPROVED)
                 ->with('user'))
             ->modifyQueryUsing(function (Builder $query) {
@@ -38,69 +38,69 @@ class PerformaDriverTable extends TableWidget
             ->description(function () {
                 [$start, $end] = static::rentangTanggal($this->tableFilters['tanggal'] ?? []);
 
-                return 'Periode ' . $start->format('d M Y') . ' sampai ' . $end->format('d M Y');
+                return 'Periode '.$start->format('d M Y').' sampai '.$end->format('d M Y');
             })
             ->headerActions([
                 Action::make('excel')
                     ->label('Download Excel')
                     ->icon('heroicon-o-table-cells')
                     ->color('success')
-                    ->action(fn() => $this->unduhLaporan('xlsx')),
+                    ->action(fn () => $this->unduhLaporan('xlsx')),
 
                 Action::make('pdf')
                     ->label('Download PDF')
                     ->icon('heroicon-o-document-arrow-down')
                     ->color('danger')
-                    ->action(fn() => $this->unduhLaporan('pdf')),
+                    ->action(fn () => $this->unduhLaporan('pdf')),
             ])
-            ->defaultSort(fn(Builder $query) => $query->orderByDesc('pengiriman_selesai'))
+            ->defaultSort(fn (Builder $query) => $query->orderByDesc('pengiriman_selesai'))
             ->columns([
                 TextColumn::make('user.name')->label('Driver')->searchable(),
 
                 TextColumn::make('pengiriman_selesai')
                     ->label('Selesai')
                     ->numeric()
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('pengiriman_selesai', $direction)),
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('pengiriman_selesai', $direction)),
 
                 TextColumn::make('pengiriman_batal')
                     ->label('Dibatalkan')
                     ->numeric()
-                    ->color(fn($state) => $state > 0 ? 'danger' : null)
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('pengiriman_batal', $direction)),
+                    ->color(fn ($state) => $state > 0 ? 'danger' : null)
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('pengiriman_batal', $direction)),
 
                 TextColumn::make('persen_selesai')
                     ->label('% Selesai')
-                    ->state(fn(DriverProfile $record) => static::persenSelesai($record)),
+                    ->state(fn (DriverProfile $record) => static::persenSelesai($record)),
 
                 TextColumn::make('pesanan_selesai')
                     ->label('Pesanan diantar')
                     ->numeric()
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('pesanan_selesai', $direction)),
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('pesanan_selesai', $direction)),
 
                 TextColumn::make('pesanan_ditolak')
                     ->label('Pesanan ditolak')
                     ->numeric()
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('pesanan_ditolak', $direction)),
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('pesanan_ditolak', $direction)),
 
                 TextColumn::make('rata_durasi_menit')
                     ->label('Rata-rata durasi')
-                    ->formatStateUsing(fn($state) => RiwayatPengirimanResource::formatDurasi($state))
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('rata_durasi_menit', $direction)),
+                    ->formatStateUsing(fn ($state) => RiwayatPengirimanResource::formatDurasi($state))
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('rata_durasi_menit', $direction)),
 
                 TextColumn::make('rating_periode')
                     ->label('Rating')
-                    ->state(fn(DriverProfile $record) => $record->jumlah_review > 0
-                        ? '★ ' . number_format((float) $record->rating_periode, 1)
+                    ->state(fn (DriverProfile $record) => $record->jumlah_review > 0
+                        ? '★ '.number_format((float) $record->rating_periode, 1)
                         : '-')
-                    ->description(fn(DriverProfile $record) => $record->jumlah_review > 0 ? $record->jumlah_review . ' review' : null)
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('rating_periode', $direction)),
+                    ->description(fn (DriverProfile $record) => $record->jumlah_review > 0 ? $record->jumlah_review.' review' : null)
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('rating_periode', $direction)),
 
                 TextColumn::make('komplain')
                     ->label('Komplain')
                     ->numeric()
                     ->badge()
-                    ->color(fn($state) => $state > 0 ? 'danger' : 'gray')
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('komplain', $direction)),
+                    ->color(fn ($state) => $state > 0 ? 'danger' : 'gray')
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('komplain', $direction)),
             ])
             // Filter hanya menyimpan rentang tanggal; perhitungannya ada di modifyQueryUsing di atas.
             ->filters([
@@ -111,11 +111,11 @@ class PerformaDriverTable extends TableWidget
             ->paginated(false);
     }
 
-        protected static function persenSelesai(DriverProfile $record): string
+    protected static function persenSelesai(DriverProfile $record): string
     {
         $total = (int) $record->pengiriman_selesai + (int) $record->pengiriman_batal;
 
-        return $total > 0 ? round($record->pengiriman_selesai / $total * 100) . '%' : '-';
+        return $total > 0 ? round($record->pengiriman_selesai / $total * 100).'%' : '-';
     }
 
     protected function unduhLaporan(string $format)
@@ -126,7 +126,7 @@ class PerformaDriverTable extends TableWidget
         $records = $this->getFilteredSortedTableQuery()->get();
 
         $judul = 'Laporan Performa Driver';
-        $periode = 'Periode: ' . $start->format('d/m/Y') . ' - ' . $end->format('d/m/Y');
+        $periode = 'Periode: '.$start->format('d/m/Y').' - '.$end->format('d/m/Y');
         $kolom = [
             ['label' => 'Driver', 'lebar' => 28],
             ['label' => 'Selesai', 'tipe' => 'angka', 'lebar' => 12],
@@ -139,7 +139,7 @@ class PerformaDriverTable extends TableWidget
             ['label' => 'Jumlah review', 'tipe' => 'angka', 'lebar' => 16],
             ['label' => 'Komplain', 'tipe' => 'angka', 'lebar' => 12],
         ];
-        $rows = $records->map(fn(DriverProfile $d) => [
+        $rows = $records->map(fn (DriverProfile $d) => [
             $d->user?->name,
             $d->pengiriman_selesai,
             $d->pengiriman_batal,
@@ -157,7 +157,7 @@ class PerformaDriverTable extends TableWidget
             ['label' => 'Total pesanan diantar', 'nilai' => (int) $records->sum('pesanan_selesai'), 'tipe' => 'angka'],
             ['label' => 'Total komplain', 'nilai' => (int) $records->sum('komplain'), 'tipe' => 'angka'],
         ];
-        $nama = Str::slug($judul) . '-' . $start->format('Ymd') . '-' . $end->format('Ymd');
+        $nama = Str::slug($judul).'-'.$start->format('Ymd').'-'.$end->format('Ymd');
 
         return $format === 'xlsx'
             ? LaporanExporter::xlsx("{$nama}.xlsx", $judul, $periode, $kolom, $rows, $ringkasan)
@@ -166,19 +166,19 @@ class PerformaDriverTable extends TableWidget
 
     protected static function tambahkanStatistik(Builder $query, $start, $end): Builder
     {
-        $trip = fn() => DB::table('deliveries')
+        $trip = fn () => DB::table('deliveries')
             ->whereColumn('deliveries.driver_profile_id', 'driver_profiles.driver_profile_id');
 
-        $selesai = fn() => $trip()
+        $selesai = fn () => $trip()
             ->whereNotNull('deliveries.completed_at')
             ->whereNull('deliveries.cancelled_at')
             ->whereBetween('deliveries.completed_at', [$start, $end]);
 
-        $pesanan = fn() => DB::table('delivery_orders')
+        $pesanan = fn () => DB::table('delivery_orders')
             ->join('deliveries', 'deliveries.delivery_id', '=', 'delivery_orders.delivery_id')
             ->whereColumn('deliveries.driver_profile_id', 'driver_profiles.driver_profile_id');
 
-        $review = fn() => DB::table('driver_reviews')
+        $review = fn () => DB::table('driver_reviews')
             ->whereColumn('driver_reviews.driver_profile_id', 'driver_profiles.driver_profile_id')
             ->where('driver_reviews.is_visible', true)
             ->whereBetween('driver_reviews.created_at', [$start, $end]);

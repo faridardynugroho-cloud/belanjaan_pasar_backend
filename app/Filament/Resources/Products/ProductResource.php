@@ -29,13 +29,13 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'MANAJEMEN DATA';
+    protected static string|UnitEnum|null $navigationGroup = 'MANAJEMEN DATA';
 
     protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Produk';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-cube';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $modelLabel = 'Produk';
 
@@ -58,7 +58,7 @@ class ProductResource extends Resource
 
                     Select::make('category_id')
                         ->label('Kategori')
-                        ->relationship('category', 'name', fn(Builder $query) => $query->active())
+                        ->relationship('category', 'name', fn (Builder $query) => $query->active())
                         ->searchable()
                         ->preload()
                         ->required()
@@ -110,7 +110,7 @@ class ProductResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with('category'))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with('category'))
             ->defaultSort('name')
             ->columns([
                 ImageColumn::make('image')
@@ -123,7 +123,7 @@ class ProductResource extends Resource
                 TextColumn::make('unit')->label('Satuan'),
                 TextColumn::make('weight_grams')
                     ->label('Berat/satuan')
-                    ->formatStateUsing(fn($state) => number_format((int) $state, 0, ',', '.') . ' g')
+                    ->formatStateUsing(fn ($state) => number_format((int) $state, 0, ',', '.').' g')
                     ->sortable(),
                 TextColumn::make('market_products_count')
                     ->label('Dijual di')
@@ -133,7 +133,7 @@ class ProductResource extends Resource
                 TextColumn::make('rating_avg')
                     ->label('Rating')
                     ->formatStateUsing(fn ($state, Product $record) => $record->rating_count
-                        ? number_format((float) $state, 1) . ' (' . $record->rating_count . ')'
+                        ? number_format((float) $state, 1).' ('.$record->rating_count.')'
                         : '-')
                     ->sortable(),
             ])
@@ -145,7 +145,7 @@ class ProductResource extends Resource
                 Filter::make('tanpa_market')
                     ->label('Belum dijual di market')
                     ->toggle()
-                    ->query(fn(Builder $query) => $query->doesntHave('marketProducts')),
+                    ->query(fn (Builder $query) => $query->doesntHave('marketProducts')),
             ])
             ->recordActions([
                 EditAction::make(),

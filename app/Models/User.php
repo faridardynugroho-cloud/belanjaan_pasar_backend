@@ -17,7 +17,9 @@ class User extends Authenticatable implements FilamentUser
     use HasApiTokens, HasFactory, Notifiable;
 
     public const ROLE_CUSTOMER = 'customer';
+
     public const ROLE_ADMIN = 'admin';
+
     public const ROLE_DRIVER = 'driver';
 
     protected $primaryKey = 'user_id';
@@ -78,6 +80,11 @@ class User extends Authenticatable implements FilamentUser
     public function driverProfile(): HasOne
     {
         return $this->hasOne(DriverProfile::class, 'user_id', 'user_id');
+    }
+
+    public function driverLocation(): HasOne
+    {
+        return $this->hasOne(DriverLocation::class, 'user_id', 'user_id');
     }
 
     public function driverLocations(): HasMany

@@ -26,13 +26,13 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'MENU UTAMA';
+    protected static string|UnitEnum|null $navigationGroup = 'MENU UTAMA';
 
     protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Pesanan';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-bag';
 
     protected static ?string $modelLabel = 'Pesanan';
 
@@ -102,7 +102,7 @@ class OrderResource extends Resource
                             TextEntry::make('product_name')->label('Barang'),
                             TextEntry::make('qty')
                                 ->label('Jumlah')
-                                ->state(fn ($record) => (float) $record->quantity . ' ' . $record->unit),
+                                ->state(fn ($record) => (float) $record->quantity.' '.$record->unit),
                             TextEntry::make('unit_price')->label('Harga Satuan')->money('IDR', locale: 'id', decimalPlaces: 0),
                             TextEntry::make('subtotal')->label('Subtotal')->money('IDR', locale: 'id', decimalPlaces: 0),
                             TextEntry::make('note')
@@ -120,7 +120,7 @@ class OrderResource extends Resource
                     TextEntry::make('grand_total')->label('Total')->money('IDR', locale: 'id', decimalPlaces: 0)->weight('bold'),
                     TextEntry::make('total_weight_grams')
                         ->label('Total Berat')
-                        ->formatStateUsing(fn ($state) => number_format($state / 1000, 2, ',', '.') . ' kg'),
+                        ->formatStateUsing(fn ($state) => number_format($state / 1000, 2, ',', '.').' kg'),
                 ]),
 
             Section::make('Riwayat Pembayaran')

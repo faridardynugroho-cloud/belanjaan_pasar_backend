@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DriverVehicle extends Model
 {
+    use HasFactory;
+
     protected $primaryKey = 'driver_vehicle_id';
 
     protected $fillable = [

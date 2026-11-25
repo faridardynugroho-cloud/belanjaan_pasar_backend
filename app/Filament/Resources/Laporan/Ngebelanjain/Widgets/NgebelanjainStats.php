@@ -40,7 +40,7 @@ class NgebelanjainStats extends StatsOverviewWidget
                 ->description("{$persenBatal}% dari permintaan")
                 ->color($batal > 0 ? 'warning' : 'gray'),
 
-            Stat::make('Biaya Layanan Terkumpul', 'Rp ' . number_format($biayaLayanan, 0, ',', '.'))
+            Stat::make('Biaya Layanan Terkumpul', 'Rp '.number_format($biayaLayanan, 0, ',', '.'))
                 ->description('Dari permintaan yang selesai')
                 ->descriptionIcon('heroicon-m-banknotes'),
         ];

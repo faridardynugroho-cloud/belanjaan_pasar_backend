@@ -22,7 +22,7 @@ class ReviewProdukResource extends Resource
 
     protected static ?string $slug = 'review/produk';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Review';
+    protected static string|UnitEnum|null $navigationGroup = 'Review';
 
     protected static ?int $navigationSort = 1;
 
@@ -50,14 +50,14 @@ class ReviewProdukResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['user:user_id,name', 'product:product_id,name', 'orderItem.order:order_id,order_number']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['user:user_id,name', 'product:product_id,name', 'orderItem.order:order_id,order_number']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('product.name')
                     ->label('Produk')
                     ->searchable()
-                    ->description(fn(ProductReview $record) => $record->orderItem?->order?->order_number
-                        ? 'Pesanan ' . $record->orderItem->order->order_number
+                    ->description(fn (ProductReview $record) => $record->orderItem?->order?->order_number
+                        ? 'Pesanan '.$record->orderItem->order->order_number
                         : null),
 
                 static::kolomRating(),
@@ -74,7 +74,7 @@ class ReviewProdukResource extends Resource
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(4)
             ->recordActions([
-                static::aksiDetail(fn(ProductReview $review) => [
+                static::aksiDetail(fn (ProductReview $review) => [
                     'Produk' => $review->product?->name,
                     'Pesanan' => $review->orderItem?->order?->order_number,
                 ]),

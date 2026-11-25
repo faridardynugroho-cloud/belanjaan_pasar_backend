@@ -10,10 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class ShoppingRequest extends Model
 {
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_ASSIGNED = 'assigned';
+
     public const STATUS_SHOPPING = 'shopping';
+
     public const STATUS_PRICE_SENT = 'price_sent';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $primaryKey = 'shopping_request_id';

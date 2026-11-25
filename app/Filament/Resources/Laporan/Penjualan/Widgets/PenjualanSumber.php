@@ -12,7 +12,7 @@ class PenjualanSumber extends ChartWidget
 {
     use InteractsWithPageTable;
 
-    protected int | string | array $columnSpan = 1;
+    protected int|string|array $columnSpan = 1;
 
     protected function getTablePage(): string
     {

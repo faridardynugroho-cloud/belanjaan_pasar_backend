@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Market extends Model
 {
+    use HasFactory;
+
     protected $primaryKey = 'market_id';
 
     protected $fillable = [
@@ -68,7 +71,7 @@ class Market extends Model
         ))))';
 
         return $query
-            ->select($this->getTable() . '.*')
+            ->select($this->getTable().'.*')
             ->selectRaw("$distance AS distance_km", [$latitude, $longitude, $latitude])
             ->orderBy('distance_km');
     }

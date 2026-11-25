@@ -24,13 +24,13 @@ class HelperResource extends Resource
 
     protected static ?string $slug = 'helpers';
 
-    protected static string | UnitEnum | null $navigationGroup = 'MANAJEMEN DATA';
+    protected static string|UnitEnum|null $navigationGroup = 'MANAJEMEN DATA';
 
     protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationLabel = 'Helper';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-user-group';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $modelLabel = 'Helper';
 

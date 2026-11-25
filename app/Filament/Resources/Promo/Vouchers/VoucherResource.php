@@ -31,7 +31,7 @@ class VoucherResource extends Resource
 
     protected static ?string $slug = 'promo/voucher';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Promo';
+    protected static string|UnitEnum|null $navigationGroup = 'Promo';
 
     protected static ?int $navigationSort = 2;
 
@@ -54,7 +54,7 @@ class VoucherResource extends Resource
                     ->regex('/^[A-Za-z0-9_-]+$/')
                     ->validationMessages(['regex' => 'Kode hanya boleh huruf, angka, strip (-), dan garis bawah (_).'])
                     ->unique(ignoreRecord: true)
-                    ->dehydrateStateUsing(fn(?string $state) => strtoupper(trim((string) $state)))
+                    ->dehydrateStateUsing(fn (?string $state) => strtoupper(trim((string) $state)))
                     ->extraInputAttributes(['style' => 'text-transform: uppercase'])
                     ->helperText('Otomatis huruf besar, mis. HEMAT10.'),
 
@@ -97,9 +97,9 @@ class VoucherResource extends Resource
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->maxValue(fn(Get $get) => $get('type') === Voucher::TYPE_PERCENT ? 100 : null)
-                    ->prefix(fn(Get $get) => $get('type') === Voucher::TYPE_FIXED ? 'Rp' : null)
-                    ->suffix(fn(Get $get) => $get('type') === Voucher::TYPE_PERCENT ? '%' : null)
+                    ->maxValue(fn (Get $get) => $get('type') === Voucher::TYPE_PERCENT ? 100 : null)
+                    ->prefix(fn (Get $get) => $get('type') === Voucher::TYPE_FIXED ? 'Rp' : null)
+                    ->suffix(fn (Get $get) => $get('type') === Voucher::TYPE_PERCENT ? '%' : null)
                     ->helperText('Gratis ongkir penuh: pilih Ongkir, Persen, 100.'),
 
                 TextInput::make('max_discount')
@@ -164,8 +164,8 @@ class VoucherResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->withCount([
-                'usages as terpakai_count' => fn(Builder $q) => $q->where('status', VoucherUsage::STATUS_APPLIED),
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'usages as terpakai_count' => fn (Builder $q) => $q->where('status', VoucherUsage::STATUS_APPLIED),
                 'usages as semua_pemakaian_count',
             ]))
             ->defaultSort('created_at', 'desc')
@@ -175,8 +175,8 @@ class VoucherResource extends Resource
                 TextColumn::make('applies_to')
                     ->label('Untuk')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => $state === Voucher::APPLIES_SUBTOTAL ? 'Belanja' : 'Ongkir')
-                    ->color(fn(string $state) => $state === Voucher::APPLIES_SUBTOTAL ? 'info' : 'warning'),
+                    ->formatStateUsing(fn (string $state) => $state === Voucher::APPLIES_SUBTOTAL ? 'Belanja' : 'Ongkir')
+                    ->color(fn (string $state) => $state === Voucher::APPLIES_SUBTOTAL ? 'info' : 'warning'),
                 TextColumn::make('nilai')
                     ->label('Potongan')
                     ->state(function (Voucher $record) {
@@ -184,28 +184,28 @@ class VoucherResource extends Resource
                             return static::rupiah($record->value);
                         }
 
-                        $teks = static::angka($record->value) . '%';
+                        $teks = static::angka($record->value).'%';
 
                         return $record->max_discount !== null
-                            ? $teks . ' (maks ' . static::rupiah($record->max_discount) . ')'
+                            ? $teks.' (maks '.static::rupiah($record->max_discount).')'
                             : $teks;
                     }),
                 TextColumn::make('min_purchase')
                     ->label('Min. belanja')
-                    ->state(fn(Voucher $record) => (float) $record->min_purchase > 0 ? static::rupiah($record->min_purchase) : '-'),
+                    ->state(fn (Voucher $record) => (float) $record->min_purchase > 0 ? static::rupiah($record->min_purchase) : '-'),
                 TextColumn::make('pemakaian')
                     ->label('Terpakai')
-                    ->state(fn(Voucher $record) => $record->terpakai_count . ' / ' . ($record->quota ?? '∞')),
+                    ->state(fn (Voucher $record) => $record->terpakai_count.' / '.($record->quota ?? '∞')),
                 TextColumn::make('periode')
                     ->label('Periode')
-                    ->state(fn(Voucher $record) => $record->starts_at->format('d/m/Y H:i')
-                        . ' - ' . $record->ends_at->format('d/m/Y H:i'))
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('starts_at', $direction)),
+                    ->state(fn (Voucher $record) => $record->starts_at->format('d/m/Y H:i')
+                        .' - '.$record->ends_at->format('d/m/Y H:i'))
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('starts_at', $direction)),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->state(fn(Voucher $record) => static::statusVoucher($record))
-                    ->color(fn(string $state) => match ($state) {
+                    ->state(fn (Voucher $record) => static::statusVoucher($record))
+                    ->color(fn (string $state) => match ($state) {
                         'Berlaku' => 'success',
                         'Terjadwal' => 'info',
                         'Habis' => 'warning',
@@ -231,8 +231,8 @@ class VoucherResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->disabled(fn(Voucher $record) => $record->semua_pemakaian_count > 0)
-                    ->tooltip(fn(Voucher $record) => $record->semua_pemakaian_count > 0
+                    ->disabled(fn (Voucher $record) => $record->semua_pemakaian_count > 0)
+                    ->tooltip(fn (Voucher $record) => $record->semua_pemakaian_count > 0
                         ? 'Sudah pernah dipakai di pesanan. Nonaktifkan saja.'
                         : null)
                     ->before(function (DeleteAction $action, Voucher $record) {
@@ -279,7 +279,7 @@ class VoucherResource extends Resource
 
     protected static function rupiah($nilai): string
     {
-        return 'Rp' . number_format((float) $nilai, 0, ',', '.');
+        return 'Rp'.number_format((float) $nilai, 0, ',', '.');
     }
 
     protected static function angka($nilai): string

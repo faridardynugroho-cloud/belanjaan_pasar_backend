@@ -16,7 +16,7 @@ class Category extends Model
         'is_active',
     ];
 
-     protected function casts(): array
+    protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
@@ -28,7 +28,7 @@ class Category extends Model
         return $this->hasMany(Product::class, 'category_id', 'category_id');
     }
 
-     public function scopeActive(Builder $query): Builder
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }

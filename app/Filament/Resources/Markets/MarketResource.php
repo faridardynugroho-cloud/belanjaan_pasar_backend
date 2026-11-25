@@ -29,13 +29,13 @@ class MarketResource extends Resource
 {
     protected static ?string $model = Market::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'MANAJEMEN DATA';
+    protected static string|UnitEnum|null $navigationGroup = 'MANAJEMEN DATA';
 
     protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Market';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-building-storefront';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-building-storefront';
 
     protected static ?string $modelLabel = 'Market';
 

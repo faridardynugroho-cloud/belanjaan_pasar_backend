@@ -6,8 +6,8 @@ use App\Filament\Resources\Orders\OrderResource;
 use App\Filament\Resources\ShoppingRequests\Pages\ListShoppingRequests;
 use App\Filament\Resources\ShoppingRequests\Pages\ViewShoppingRequest;
 use App\Models\ShoppingRequest;
-use App\Support\ShoppingRequestStatus;
 use App\Support\Rating;
+use App\Support\ShoppingRequestStatus;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Infolists\Components\RepeatableEntry;
@@ -25,13 +25,13 @@ class ShoppingRequestResource extends Resource
 {
     protected static ?string $model = ShoppingRequest::class;
 
-    protected static string | UnitEnum | null $navigationGroup = 'MENU UTAMA';
+    protected static string|UnitEnum|null $navigationGroup = 'MENU UTAMA';
 
     protected static ?int $navigationSort = 3;
 
     protected static ?string $navigationLabel = 'Ngebelanjain';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static ?string $modelLabel = 'Permintaan Ngebelanjain';
 
@@ -65,14 +65,14 @@ class ShoppingRequestResource extends Resource
                     TextEntry::make('request_number')->label('No. Permintaan')->copyable(),
                     TextEntry::make('status')
                         ->badge()
-                        ->formatStateUsing(fn(string $state) => ShoppingRequestStatus::label($state))
-                        ->color(fn(string $state) => ShoppingRequestStatus::color($state)),
+                        ->formatStateUsing(fn (string $state) => ShoppingRequestStatus::label($state))
+                        ->color(fn (string $state) => ShoppingRequestStatus::color($state)),
                     TextEntry::make('created_at')->label('Dibuat')->dateTime('d M Y H:i'),
                     TextEntry::make('user.name')->label('Customer'),
                     TextEntry::make('market.name')->label('Market'),
                     TextEntry::make('helper')
                         ->label('Helper')
-                        ->state(fn(ShoppingRequest $record) => $record->currentAssignment?->helper?->name ?? 'Belum ditugaskan'),
+                        ->state(fn (ShoppingRequest $record) => $record->currentAssignment?->helper?->name ?? 'Belum ditugaskan'),
                     TextEntry::make('notes')->label('Catatan Customer')->placeholder('-')->columnSpanFull(),
                 ]),
 
@@ -86,7 +86,7 @@ class ShoppingRequestResource extends Resource
                         ->label('Lokasi')
                         ->state('Buka di Google Maps')
                         ->color('primary')
-                        ->url(fn(ShoppingRequest $record) => "https://www.google.com/maps?q={$record->shipping_latitude},{$record->shipping_longitude}")
+                        ->url(fn (ShoppingRequest $record) => "https://www.google.com/maps?q={$record->shipping_latitude},{$record->shipping_longitude}")
                         ->openUrlInNewTab(),
                     TextEntry::make('shipping_address')->label('Alamat Lengkap')->columnSpanFull(),
                 ]),
@@ -107,12 +107,12 @@ class ShoppingRequestResource extends Resource
                     RepeatableEntry::make('items')
                         ->hiddenLabel()
                         ->columns(4)
-                        ->visible(fn(ShoppingRequest $record) => $record->items->isNotEmpty())
+                        ->visible(fn (ShoppingRequest $record) => $record->items->isNotEmpty())
                         ->schema([
                             TextEntry::make('name')->label('Barang'),
                             TextEntry::make('qty')
                                 ->label('Jumlah')
-                                ->state(fn($record) => (float) $record->quantity . ' ' . $record->unit),
+                                ->state(fn ($record) => (float) $record->quantity.' '.$record->unit),
                             TextEntry::make('unit_price')->label('Harga Satuan')->money('IDR', locale: 'id', decimalPlaces: 0),
                             TextEntry::make('subtotal')->money('IDR', locale: 'id', decimalPlaces: 0),
                         ]),
@@ -125,38 +125,38 @@ class ShoppingRequestResource extends Resource
                     TextEntry::make('service_fee')->label('Biaya Layanan')->money('IDR', locale: 'id', decimalPlaces: 0),
                     TextEntry::make('grand')
                         ->label('Total Tagihan')
-                        ->state(fn(ShoppingRequest $record) => $record->total + $record->service_fee)
+                        ->state(fn (ShoppingRequest $record) => $record->total + $record->service_fee)
                         ->money('IDR', locale: 'id', decimalPlaces: 0)
                         ->weight('bold'),
                     TextEntry::make('total_weight_grams')
                         ->label('Total Berat')
-                        ->formatStateUsing(fn($state) => number_format((float) $state / 1000, 2, ',', '.') . ' kg'),
+                        ->formatStateUsing(fn ($state) => number_format((float) $state / 1000, 2, ',', '.').' kg'),
                 ]),
 
             Section::make('Pesanan Terkait')
-                ->visible(fn(ShoppingRequest $record) => $record->order()->exists())
+                ->visible(fn (ShoppingRequest $record) => $record->order()->exists())
                 ->schema([
                     TextEntry::make('order_link')
                         ->label('No. Pesanan')
-                        ->state(fn(ShoppingRequest $record) => $record->order?->order_number)
-                        ->url(fn(ShoppingRequest $record) => $record->order
+                        ->state(fn (ShoppingRequest $record) => $record->order?->order_number)
+                        ->url(fn (ShoppingRequest $record) => $record->order
                             ? OrderResource::getUrl('view', ['record' => $record->order])
                             : null)
                         ->color('primary'),
                 ]),
             Section::make('Rating Customer')
-                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
+                ->visible(fn (ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
                 ->columns(3)
                 ->schema([
                     TextEntry::make('rating_bintang')
                         ->label('Rating')
-                        ->state(fn(ShoppingRequest $record) => Rating::bintang($record->order->shoppingRequestReview->rating)),
+                        ->state(fn (ShoppingRequest $record) => Rating::bintang($record->order->shoppingRequestReview->rating)),
                     TextEntry::make('rating_status')
                         ->label('Status')
-                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingRequestReview->is_visible ? 'Tampil' : 'Disembunyikan'),
+                        ->state(fn (ShoppingRequest $record) => $record->order->shoppingRequestReview->is_visible ? 'Tampil' : 'Disembunyikan'),
                     TextEntry::make('rating_komentar')
                         ->label('Komentar')
-                        ->state(fn(ShoppingRequest $record) => $record->order->shoppingRequestReview->comment ?: '-')
+                        ->state(fn (ShoppingRequest $record) => $record->order->shoppingRequestReview->comment ?: '-')
                         ->columnSpanFull(),
                 ]),
         ]);
@@ -165,7 +165,7 @@ class ShoppingRequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['user', 'market']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['user', 'market']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('request_number')->label('No. Permintaan')->searchable()->copyable(),
@@ -175,8 +175,8 @@ class ShoppingRequestResource extends Resource
                 TextColumn::make('total')->label('Total Belanja')->money('IDR', locale: 'id', decimalPlaces: 0),
                 TextColumn::make('status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => ShoppingRequestStatus::label($state))
-                    ->color(fn(string $state) => ShoppingRequestStatus::color($state)),
+                    ->formatStateUsing(fn (string $state) => ShoppingRequestStatus::label($state))
+                    ->color(fn (string $state) => ShoppingRequestStatus::color($state)),
                 TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable(),
             ])
             ->filters([

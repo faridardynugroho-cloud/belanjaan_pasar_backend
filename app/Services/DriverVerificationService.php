@@ -55,7 +55,7 @@ class DriverVerificationService
             $row = DriverDocumentCheck::findOrFail($pemeriksaan->getKey());
 
             if ($status === DriverDocumentCheck::STATUS_VALID && $row->pathFoto() === null) {
-                throw new DomainException('Dokumen ' . DriverDocumentCheck::labelItem($row->item) . ' belum diunggah driver.');
+                throw new DomainException('Dokumen '.DriverDocumentCheck::labelItem($row->item).' belum diunggah driver.');
             }
 
             $row->update([
@@ -84,11 +84,11 @@ class DriverVerificationService
             $belumValid = DriverDocumentCheck::where('driver_profile_id', $row->getKey())
                 ->where('status', '!=', DriverDocumentCheck::STATUS_VALID)
                 ->pluck('item')
-                ->map(fn(string $item) => DriverDocumentCheck::labelItem($item))
+                ->map(fn (string $item) => DriverDocumentCheck::labelItem($item))
                 ->all();
 
             if ($belumValid !== []) {
-                throw new DomainException('Masih ada dokumen yang belum valid: ' . implode(', ', $belumValid) . '.');
+                throw new DomainException('Masih ada dokumen yang belum valid: '.implode(', ', $belumValid).'.');
             }
 
             if ($row->document?->sim_expired_at?->isPast()) {

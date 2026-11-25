@@ -14,7 +14,7 @@ class PenjualanChart extends ChartWidget
 {
     use InteractsWithPageTable;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     protected function getTablePage(): string
     {

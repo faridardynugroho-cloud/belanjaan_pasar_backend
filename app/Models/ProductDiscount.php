@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class ProductDiscount extends Model
 {
     public const TYPE_PERCENT = 'percent';
+
     public const TYPE_FIXED = 'fixed';
 
     protected $primaryKey = 'product_discount_id';

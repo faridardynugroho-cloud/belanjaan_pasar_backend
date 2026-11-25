@@ -1,0 +1,528 @@
+{
+  "info": {
+    "_postman_id": "b3e7a101-789a-4c12-8901-abcdef123456",
+    "name": "BelanjaanPasar - Driver & Delivery API",
+    "description": "Koleksi API untuk aplikasi mobile Driver (React Native) dan Admin Verifikasi BelanjaanPasar.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000/api",
+      "type": "string"
+    },
+    {
+      "key": "driverToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "driverProfileId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "deliveryId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "deliveryOrderId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Auth & Profil Driver",
+      "item": [
+        {
+          "name": "Register Driver (Multipart)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.token) {",
+                  "        pm.collectionVariables.set(\"driverToken\", res.token);",
+                  "        console.log(\"[Postman] driverToken tersimpan otomatis:\", res.token);",
+                  "    }",
+                  "    if (res.driver && res.driver.driver_profile_id) {",
+                  "        pm.collectionVariables.set(\"driverProfileId\", res.driver.driver_profile_id.toString());",
+                  "        console.log(\"[Postman] driverProfileId tersimpan otomatis:\", res.driver.driver_profile_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name", "value": "Budi Driver", "type": "text" },
+                { "key": "email", "value": "budi.driver@example.com", "type": "text" },
+                { "key": "password", "value": "password123", "type": "text" },
+                { "key": "phone", "value": "081234567890", "type": "text" },
+                { "key": "gender", "value": "male", "type": "text" },
+                { "key": "birth_date", "value": "1995-05-15", "type": "text" },
+                { "key": "domicile_address", "value": "Jl. Kebon Jeruk No. 10, Jakarta", "type": "text" },
+                { "key": "nik", "value": "3171234567890001", "type": "text" },
+                { "key": "ktp_photo", "type": "file" },
+                { "key": "selfie_photo", "type": "file" },
+                { "key": "sim_type", "value": "C", "type": "text" },
+                { "key": "sim_number", "value": "950512345678", "type": "text" },
+                { "key": "sim_photo", "type": "file" },
+                { "key": "sim_expired_at", "value": "2028-12-31", "type": "text" },
+                { "key": "vehicle_type", "value": "Motor", "type": "text" },
+                { "key": "vehicle_brand", "value": "Honda", "type": "text" },
+                { "key": "vehicle_model", "value": "Vario 125", "type": "text" },
+                { "key": "vehicle_plate", "value": "B 1234 XYZ", "type": "text" },
+                { "key": "vehicle_color", "value": "Hitam", "type": "text" },
+                { "key": "production_year", "value": "2022", "type": "text" },
+                { "key": "vehicle_photo", "type": "file" },
+                { "key": "stnk_photo", "type": "file" },
+                { "key": "device_name", "value": "rn-driver-mobile", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/driver/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.token) {",
+                  "        pm.collectionVariables.set(\"driverToken\", res.token);",
+                  "        console.log(\"[Postman] driverToken tersimpan otomatis:\", res.token);",
+                  "    }",
+                  "    if (res.driver && res.driver.driver_profile_id) {",
+                  "        pm.collectionVariables.set(\"driverProfileId\", res.driver.driver_profile_id.toString());",
+                  "        console.log(\"[Postman] driverProfileId tersimpan otomatis:\", res.driver.driver_profile_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"budi.driver@example.com\",\n  \"password\": \"password123\",\n  \"device_name\": \"rn-driver-mobile\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/driver/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile / Status Approval (/me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/driver/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "me"]
+            }
+          }
+        },
+        {
+          "name": "Logout Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/driver/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Verifikasi Admin",
+      "item": [
+        {
+          "name": "Daftar Pendaftar Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.data && res.data.length > 0) {",
+                  "        pm.collectionVariables.set(\"driverProfileId\", res.data[0].driver_profile_id.toString());",
+                  "        console.log(\"[Postman] driverProfileId diambil dari pendaftar pertama:\", res.data[0].driver_profile_id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/drivers?approval_status=pending&page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "drivers"],
+              "query": [
+                { "key": "approval_status", "value": "pending" },
+                { "key": "page", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Detail Pendaftar Driver",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/drivers/{{driverProfileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "drivers", "{{driverProfileId}}"]
+            }
+          }
+        },
+        {
+          "name": "Approve Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/drivers/{{driverProfileId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "drivers", "{{driverProfileId}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject Driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejection_reason\": \"Foto KTP buram dan tidak terbaca jelas.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/drivers/{{driverProfileId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "drivers", "{{driverProfileId}}", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Lokasi & Operasional Driver",
+      "item": [
+        {
+          "name": "Update Ketersediaan (Online/Offline)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/driver/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "availability"]
+            }
+          }
+        },
+        {
+          "name": "Kirim Koordinat GPS Terbaru",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": -6.2005000,\n  \"longitude\": 106.8005000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/driver/location",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "location"]
+            }
+          }
+        },
+        {
+          "name": "Ambil Delivery Aktif (/current)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const res = pm.response.json();",
+                  "    if (res.delivery) {",
+                  "        pm.collectionVariables.set(\"deliveryId\", res.delivery.delivery_id.toString());",
+                  "        if (res.delivery.delivery_orders && res.delivery.delivery_orders.length > 0) {",
+                  "            pm.collectionVariables.set(\"deliveryOrderId\", res.delivery.delivery_orders[0].delivery_order_id.toString());",
+                  "            console.log(\"[Postman] IDs tersimpan: deliveryId=\" + res.delivery.delivery_id + \", deliveryOrderId=\" + res.delivery.delivery_orders[0].delivery_order_id);",
+                  "        }",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/driver/deliveries/current",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "deliveries", "current"]
+            }
+          }
+        },
+        {
+          "name": "Riwayat Delivery (/history)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/driver/deliveries/history?page=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "deliveries", "history"],
+              "query": [
+                { "key": "page", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Pengelolaan Order & Perjalanan",
+      "item": [
+        {
+          "name": "Terima Order (Accept)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/driver/delivery-orders/{{deliveryOrderId}}/accept",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "delivery-orders", "{{deliveryOrderId}}", "accept"]
+            }
+          }
+        },
+        {
+          "name": "Tolak Order (Reject)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rejection_reason\": \"Lokasi pengantaran terlalu jauh dari posisi saat ini.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/driver/delivery-orders/{{deliveryOrderId}}/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "delivery-orders", "{{deliveryOrderId}}", "reject"]
+            }
+          }
+        },
+        {
+          "name": "Mulai Pengantaran (Start Delivery)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/driver/deliveries/{{deliveryId}}/start",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "deliveries", "{{deliveryId}}", "start"]
+            }
+          }
+        },
+        {
+          "name": "Selesaikan Satu Order (Complete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{driverToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "received_by", "value": "customer", "type": "text" },
+                { "key": "received_note", "value": "Diterima langsung oleh customer", "type": "text" },
+                { "key": "proof_photo", "type": "file" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/driver/delivery-orders/{{deliveryOrderId}}/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["driver", "delivery-orders", "{{deliveryOrderId}}", "complete"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

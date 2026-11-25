@@ -35,11 +35,11 @@ trait HasLaporanDownload
         $records = $this->getFilteredSortedTableQuery()->get();
 
         $judul = $resource::judulLaporan();
-        $periode = 'Periode: ' . $start->format('d/m/Y') . ' - ' . $end->format('d/m/Y');
+        $periode = 'Periode: '.$start->format('d/m/Y').' - '.$end->format('d/m/Y');
         $kolom = $resource::exportKolom();
         $rows = $records->map(fn ($record) => $resource::exportBaris($record))->all();
         $ringkasan = $resource::exportRingkasan($records);
-        $nama = Str::slug($judul) . '-' . $start->format('Ymd') . '-' . $end->format('Ymd');
+        $nama = Str::slug($judul).'-'.$start->format('Ymd').'-'.$end->format('Ymd');
 
         return $format === 'xlsx'
             ? LaporanExporter::xlsx("{$nama}.xlsx", $judul, $periode, $kolom, $rows, $ringkasan)

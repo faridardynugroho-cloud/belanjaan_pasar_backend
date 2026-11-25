@@ -29,7 +29,7 @@ class CreateDelivery extends CreateRecord
                     ->danger()
                     ->send();
 
-                throw new Halt();
+                throw new Halt;
             };
 
             // Kunci baris pesanan dulu, supaya admin lain yang submit bersamaan menunggu
@@ -44,7 +44,7 @@ class CreateDelivery extends CreateRecord
             }
 
             if (count($orderIds) > DeliveryResource::MAX_ORDERS) {
-                $gagal('Maksimal ' . DeliveryResource::MAX_ORDERS . ' pesanan per pengiriman.');
+                $gagal('Maksimal '.DeliveryResource::MAX_ORDERS.' pesanan per pengiriman.');
             }
 
             if ($orders->sum('total_weight_grams') > DeliveryResource::MAX_GRAMS) {
@@ -53,7 +53,7 @@ class CreateDelivery extends CreateRecord
 
             $delivery = Delivery::create([
                 'driver_profile_id' => $data['driver_profile_id'],
-                'delivery_number' => 'DLV-' . now()->format('Ymd') . '-' . Str::upper(Str::random(6)),
+                'delivery_number' => 'DLV-'.now()->format('Ymd').'-'.Str::upper(Str::random(6)),
             ]);
 
             foreach ($orders as $order) {

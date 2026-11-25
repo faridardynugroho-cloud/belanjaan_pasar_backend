@@ -41,7 +41,7 @@ class DaftarDriverResource extends Resource
 
     protected static ?string $slug = 'driver/daftar-driver';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Driver';
+    protected static string|UnitEnum|null $navigationGroup = 'Driver';
 
     protected static ?int $navigationSort = 1;
 
@@ -61,7 +61,7 @@ class DaftarDriverResource extends Resource
         return false;
     }
 
-    public static function getRecordTitle(?Model $record): string | Htmlable | null
+    public static function getRecordTitle(?Model $record): string|Htmlable|null
     {
         return $record?->user?->name;
     }
@@ -72,12 +72,12 @@ class DaftarDriverResource extends Resource
         return parent::getEloquentQuery()
             ->where('approval_status', 'approved')
             ->with(['user', 'vehicle', 'document', 'currentSanction'])
-            ->withCount(['deliveries as total_pengiriman' => fn(Builder $q) => $q->whereNotNull('completed_at')])
-            ->withExists(['deliveries as sedang_antar' => fn(Builder $q) => $q
+            ->withCount(['deliveries as total_pengiriman' => fn (Builder $q) => $q->whereNotNull('completed_at')])
+            ->withExists(['deliveries as sedang_antar' => fn (Builder $q) => $q
                 ->whereNull('completed_at')
                 ->whereNull('cancelled_at')
                 ->whereNotNull('started_at')])
-            ->withSum(['violations as poin_aktif' => fn(Builder $q) => $q->withActivePoints()], 'points');
+            ->withSum(['violations as poin_aktif' => fn (Builder $q) => $q->withActivePoints()], 'points');
     }
 
     // ===== Status turunan =====
@@ -95,7 +95,7 @@ class DaftarDriverResource extends Resource
             $sanksi->status === DriverSanction::STATUS_WAITING => ['Suspend terjadwal', 'info', 'Mulai setelah pesanan selesai'],
             $sanksi->type === DriverSanction::TYPE_TERMINATION => ['Putus mitra', 'danger', null],
             $sanksi->type === DriverSanction::TYPE_PERMANENT => ['Suspend permanen', 'danger', null],
-            default => ['Suspend', 'warning', 'Sampai ' . RiwayatSanksiResource::tanggal($sanksi->expires_at)],
+            default => ['Suspend', 'warning', 'Sampai '.RiwayatSanksiResource::tanggal($sanksi->expires_at)],
         };
     }
 
@@ -123,7 +123,7 @@ class DaftarDriverResource extends Resource
     public static function labelRating(DriverProfile $driver): string
     {
         return $driver->rating_count > 0
-            ? number_format((float) $driver->rating_avg, 1) . ' ★ (' . $driver->rating_count . ')'
+            ? number_format((float) $driver->rating_avg, 1).' ★ ('.$driver->rating_count.')'
             : 'Belum ada rating';
     }
 
@@ -132,15 +132,15 @@ class DaftarDriverResource extends Resource
     /** @return array<Action> */
     public static function aksiSanksi(): array
     {
-        $sedangPutusMitra = fn(DriverProfile $r) => $r->currentSanction?->type === DriverSanction::TYPE_TERMINATION;
+        $sedangPutusMitra = fn (DriverProfile $r) => $r->currentSanction?->type === DriverSanction::TYPE_TERMINATION;
 
         return [
             Action::make('suspend')
                 ->label('Suspend Driver')
                 ->icon('heroicon-o-no-symbol')
                 ->color('warning')
-                ->visible(fn(DriverProfile $record) => ! $sedangPutusMitra($record))
-                ->modalHeading(fn(DriverProfile $record) => 'Suspend ' . $record->user?->name)
+                ->visible(fn (DriverProfile $record) => ! $sedangPutusMitra($record))
+                ->modalHeading(fn (DriverProfile $record) => 'Suspend '.$record->user?->name)
                 ->modalDescription('Driver tidak akan ditawari order selama disuspend. Kalau masih membawa pesanan, suspend mulai setelah pesanan selesai.')
                 ->schema([
                     Select::make('tipe')
@@ -154,21 +154,21 @@ class DaftarDriverResource extends Resource
                         ->required(),
 
                     Grid::make(2)
-                        ->visible(fn(Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
+                        ->visible(fn (Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
                         ->schema([
                             TextInput::make('durasi')
                                 ->label('Durasi')
                                 ->numeric()
                                 ->integer()
                                 ->minValue(1)
-                                ->required(fn(Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
+                                ->required(fn (Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
                                 ->helperText('Maksimal 60 hari.'),
 
                             Select::make('satuan')
                                 ->label('Satuan')
                                 ->options(['menit' => 'Menit', 'jam' => 'Jam', 'hari' => 'Hari'])
                                 ->default('jam')
-                                ->required(fn(Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY),
+                                ->required(fn (Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY),
                         ]),
 
                     Textarea::make('alasan')->label('Alasan')->required()->rows(3),
@@ -183,7 +183,7 @@ class DaftarDriverResource extends Resource
                     }
 
                     RiwayatSanksiResource::jalankan(
-                        fn() => DriverSanctionService::jatuhkanManual(
+                        fn () => DriverSanctionService::jatuhkanManual(
                             Auth::user(),
                             $record,
                             $data['tipe'],
@@ -191,7 +191,7 @@ class DaftarDriverResource extends Resource
                             $data['alasan'],
                             $data['catatan'] ?? null,
                         ),
-                        fn(DriverSanction $sanksi) => $sanksi->started_at
+                        fn (DriverSanction $sanksi) => $sanksi->started_at
                             ? 'Driver disuspend'
                             : 'Suspend terjadwal, mulai setelah pesanan driver selesai',
                     );
@@ -201,14 +201,14 @@ class DaftarDriverResource extends Resource
                 ->label('Aktifkan Kembali')
                 ->icon('heroicon-o-arrow-uturn-left')
                 ->color('success')
-                ->visible(fn(DriverProfile $record) => $record->currentSanction !== null)
-                ->modalHeading(fn(DriverProfile $record) => 'Aktifkan kembali ' . $record->user?->name)
-                ->modalDescription(fn(DriverProfile $record) => 'Sanksi yang dicabut: ' . static::ringkasSanksi($record->currentSanction))
+                ->visible(fn (DriverProfile $record) => $record->currentSanction !== null)
+                ->modalHeading(fn (DriverProfile $record) => 'Aktifkan kembali '.$record->user?->name)
+                ->modalDescription(fn (DriverProfile $record) => 'Sanksi yang dicabut: '.static::ringkasSanksi($record->currentSanction))
                 ->schema([
                     Textarea::make('catatan')->label('Catatan pencabutan')->required()->rows(3),
                 ])
-                ->action(fn(DriverProfile $record, array $data) => RiwayatSanksiResource::jalankan(
-                    fn() => DriverSanctionService::cabutSanksi(Auth::user(), $record->currentSanction, $data['catatan']),
+                ->action(fn (DriverProfile $record, array $data) => RiwayatSanksiResource::jalankan(
+                    fn () => DriverSanctionService::cabutSanksi(Auth::user(), $record->currentSanction, $data['catatan']),
                     'Driver diaktifkan kembali',
                 )),
 
@@ -216,16 +216,16 @@ class DaftarDriverResource extends Resource
                 ->label('Putus Mitra')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn(DriverProfile $record) => ! $sedangPutusMitra($record))
+                ->visible(fn (DriverProfile $record) => ! $sedangPutusMitra($record))
                 ->requiresConfirmation()
-                ->modalHeading(fn(DriverProfile $record) => 'Putus mitra ' . $record->user?->name . '?')
+                ->modalHeading(fn (DriverProfile $record) => 'Putus mitra '.$record->user?->name.'?')
                 ->modalDescription('Driver tidak bisa menerima order lagi. Tindakan ini masih bisa dicabut lewat Aktifkan Kembali.')
                 ->schema([
                     Textarea::make('alasan')->label('Alasan')->required()->rows(3),
                     Textarea::make('catatan')->label('Catatan internal')->rows(2),
                 ])
-                ->action(fn(DriverProfile $record, array $data) => RiwayatSanksiResource::jalankan(
-                    fn() => DriverSanctionService::jatuhkanManual(
+                ->action(fn (DriverProfile $record, array $data) => RiwayatSanksiResource::jalankan(
+                    fn () => DriverSanctionService::jatuhkanManual(
                         Auth::user(),
                         $record,
                         DriverSanction::TYPE_TERMINATION,
@@ -245,12 +245,12 @@ class DaftarDriverResource extends Resource
         }
 
         $jenis = match ($sanksi->type) {
-            DriverSanction::TYPE_TEMPORARY => 'Suspend ' . RiwayatSanksiResource::formatDurasi($sanksi->duration_minutes),
+            DriverSanction::TYPE_TEMPORARY => 'Suspend '.RiwayatSanksiResource::formatDurasi($sanksi->duration_minutes),
             DriverSanction::TYPE_PERMANENT => 'Suspend permanen',
             default => 'Putus mitra',
         };
 
-        return $jenis . ' (' . RiwayatSanksiResource::labelStatus($sanksi) . ')';
+        return $jenis.' ('.RiwayatSanksiResource::labelStatus($sanksi).')';
     }
 
     // ===== Form edit =====
@@ -270,7 +270,7 @@ class DaftarDriverResource extends Resource
                         ->required()
                         ->maxLength(255)
                         ->rules([
-                            fn($record) => Rule::unique('users', 'email')->ignore($record?->user_id, 'user_id'),
+                            fn ($record) => Rule::unique('users', 'email')->ignore($record?->user_id, 'user_id'),
                         ]),
 
                     TextInput::make('phone')->label('Telepon')->tel()->maxLength(20),
@@ -291,7 +291,7 @@ class DaftarDriverResource extends Resource
             Section::make('Kendaraan')
                 ->relationship('vehicle')
                 ->columns(3)
-                ->visible(fn(?DriverProfile $record) => $record?->vehicle !== null)
+                ->visible(fn (?DriverProfile $record) => $record?->vehicle !== null)
                 ->schema([
                     TextInput::make('vehicle_type')->label('Jenis')->required()->maxLength(50),
                     TextInput::make('vehicle_brand')->label('Merek')->required()->maxLength(50),
@@ -319,28 +319,28 @@ class DaftarDriverResource extends Resource
                 ->schema([
                     TextEntry::make('status_akun')
                         ->label('Status akun')
-                        ->state(fn(DriverProfile $record) => static::statusAkun($record)[0])
+                        ->state(fn (DriverProfile $record) => static::statusAkun($record)[0])
                         ->badge()
-                        ->color(fn(DriverProfile $record) => static::statusAkun($record)[1])
-                        ->helperText(fn(DriverProfile $record) => static::statusAkun($record)[2]),
+                        ->color(fn (DriverProfile $record) => static::statusAkun($record)[1])
+                        ->helperText(fn (DriverProfile $record) => static::statusAkun($record)[2]),
 
                     TextEntry::make('status_operasional')
                         ->label('Status operasional')
-                        ->state(fn(DriverProfile $record) => static::statusOperasional($record))
+                        ->state(fn (DriverProfile $record) => static::statusOperasional($record))
                         ->badge()
-                        ->color(fn(string $state) => static::warnaOperasional($state)),
+                        ->color(fn (string $state) => static::warnaOperasional($state)),
 
                     TextEntry::make('rating')
                         ->label('Rating')
-                        ->state(fn(DriverProfile $record) => static::labelRating($record)),
+                        ->state(fn (DriverProfile $record) => static::labelRating($record)),
 
                     TextEntry::make('total_pengiriman')
                         ->label('Total pengiriman selesai')
-                        ->state(fn(DriverProfile $record) => $record->total_pengiriman ?? 0),
+                        ->state(fn (DriverProfile $record) => $record->total_pengiriman ?? 0),
 
                     TextEntry::make('poin_aktif')
                         ->label('Poin pelanggaran aktif')
-                        ->state(fn(DriverProfile $record) => (int) ($record->poin_aktif ?? 0)),
+                        ->state(fn (DriverProfile $record) => (int) ($record->poin_aktif ?? 0)),
                 ]),
 
             Section::make('Informasi pribadi')
@@ -351,7 +351,7 @@ class DaftarDriverResource extends Resource
                     TextEntry::make('user.phone')->label('Telepon')->placeholder('-'),
                     TextEntry::make('user.gender')
                         ->label('Jenis kelamin')
-                        ->formatStateUsing(fn($state) => match ($state) {
+                        ->formatStateUsing(fn ($state) => match ($state) {
                             'male' => 'Laki-laki',
                             'female' => 'Perempuan',
                             default => '-',
@@ -383,8 +383,8 @@ class DaftarDriverResource extends Resource
                         ->label('SIM berlaku sampai')
                         ->date('d M Y')
                         ->placeholder('-')
-                        ->color(fn(DriverProfile $record) => $record->document?->sim_expired_at?->isPast() ? 'danger' : null)
-                        ->helperText(fn(DriverProfile $record) => $record->document?->sim_expired_at?->isPast() ? 'SIM sudah kedaluwarsa' : null),
+                        ->color(fn (DriverProfile $record) => $record->document?->sim_expired_at?->isPast() ? 'danger' : null)
+                        ->helperText(fn (DriverProfile $record) => $record->document?->sim_expired_at?->isPast() ? 'SIM sudah kedaluwarsa' : null),
                     ImageEntry::make('document.ktp_photo')->label('Foto KTP')->disk('public')->height(160),
                     ImageEntry::make('document.selfie_photo')->label('Foto selfie')->disk('public')->height(160),
                     ImageEntry::make('document.sim_photo')->label('Foto SIM')->disk('public')->height(160),
@@ -402,15 +402,15 @@ class DaftarDriverResource extends Resource
                 TextColumn::make('user.name')
                     ->label('Driver')
                     ->searchable()
-                    ->description(fn(DriverProfile $record) => 'ID Driver: ' . $record->driver_profile_id),
+                    ->description(fn (DriverProfile $record) => 'ID Driver: '.$record->driver_profile_id),
 
                 TextColumn::make('user.phone')->label('Telepon')->searchable()->placeholder('-'),
 
                 TextColumn::make('vehicle.vehicle_plate')
                     ->label('Kendaraan')
                     ->placeholder('-')
-                    ->description(fn(DriverProfile $record) => $record->vehicle
-                        ? $record->vehicle->vehicle_brand . ' ' . $record->vehicle->vehicle_model
+                    ->description(fn (DriverProfile $record) => $record->vehicle
+                        ? $record->vehicle->vehicle_brand.' '.$record->vehicle->vehicle_model
                         : null),
 
                 TextColumn::make('verifikasi')
@@ -421,41 +421,41 @@ class DaftarDriverResource extends Resource
 
                 TextColumn::make('status_akun')
                     ->label('Status akun')
-                    ->state(fn(DriverProfile $record) => static::statusAkun($record)[0])
+                    ->state(fn (DriverProfile $record) => static::statusAkun($record)[0])
                     ->badge()
-                    ->color(fn(DriverProfile $record) => static::statusAkun($record)[1])
-                    ->description(fn(DriverProfile $record) => static::statusAkun($record)[2]),
+                    ->color(fn (DriverProfile $record) => static::statusAkun($record)[1])
+                    ->description(fn (DriverProfile $record) => static::statusAkun($record)[2]),
 
                 TextColumn::make('status_operasional')
                     ->label('Operasional')
-                    ->state(fn(DriverProfile $record) => static::statusOperasional($record))
+                    ->state(fn (DriverProfile $record) => static::statusOperasional($record))
                     ->badge()
-                    ->color(fn(string $state) => static::warnaOperasional($state)),
+                    ->color(fn (string $state) => static::warnaOperasional($state)),
 
                 TextColumn::make('rating_avg')
                     ->label('Rating')
-                    ->state(fn(DriverProfile $record) => static::labelRating($record))
+                    ->state(fn (DriverProfile $record) => static::labelRating($record))
                     ->sortable(),
 
                 TextColumn::make('total_pengiriman')
                     ->label('Pengiriman')
                     ->numeric()
                     ->suffix(' selesai')
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('total_pengiriman', $direction)),
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('total_pengiriman', $direction)),
 
                 TextColumn::make('poin_aktif')
                     ->label('Poin')
-                    ->state(fn(DriverProfile $record) => (int) ($record->poin_aktif ?? 0))
+                    ->state(fn (DriverProfile $record) => (int) ($record->poin_aktif ?? 0))
                     ->badge()
-                    ->color(fn(int $state) => $state > 0 ? 'warning' : 'gray')
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('poin_aktif', $direction)),
+                    ->color(fn (int $state) => $state > 0 ? 'warning' : 'gray')
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('poin_aktif', $direction)),
             ])
             ->filters([
                 SelectFilter::make('operasional')
                     ->label('Status operasional')
                     ->options(['online' => 'Online', 'offline' => 'Offline', 'on_delivery' => 'On Delivery'])
                     ->query(function (Builder $query, array $data) {
-                        $sedangAntar = fn(Builder $q) => $q->whereNull('completed_at')->whereNull('cancelled_at')->whereNotNull('started_at');
+                        $sedangAntar = fn (Builder $q) => $q->whereNull('completed_at')->whereNull('cancelled_at')->whereNotNull('started_at');
 
                         return match ($data['value'] ?? null) {
                             'on_delivery' => $query->whereHas('deliveries', $sedangAntar),
@@ -468,11 +468,11 @@ class DaftarDriverResource extends Resource
                 SelectFilter::make('akun')
                     ->label('Status akun')
                     ->options(['aktif' => 'Aktif', 'suspend' => 'Suspend', 'putus_mitra' => 'Putus mitra'])
-                    ->query(fn(Builder $query, array $data) => match ($data['value'] ?? null) {
-                        'aktif' => $query->whereDoesntHave('sanctions', fn(Builder $q) => $q->open()),
-                        'suspend' => $query->whereHas('sanctions', fn(Builder $q) => $q->open()
+                    ->query(fn (Builder $query, array $data) => match ($data['value'] ?? null) {
+                        'aktif' => $query->whereDoesntHave('sanctions', fn (Builder $q) => $q->open()),
+                        'suspend' => $query->whereHas('sanctions', fn (Builder $q) => $q->open()
                             ->whereIn('type', [DriverSanction::TYPE_TEMPORARY, DriverSanction::TYPE_PERMANENT])),
-                        'putus_mitra' => $query->whereHas('sanctions', fn(Builder $q) => $q->open()
+                        'putus_mitra' => $query->whereHas('sanctions', fn (Builder $q) => $q->open()
                             ->where('type', DriverSanction::TYPE_TERMINATION)),
                         default => $query,
                     }),

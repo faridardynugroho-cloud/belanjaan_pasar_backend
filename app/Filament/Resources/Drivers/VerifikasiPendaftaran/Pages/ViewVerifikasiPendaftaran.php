@@ -16,7 +16,7 @@ class ViewVerifikasiPendaftaran extends ViewRecord
 {
     protected static string $resource = VerifikasiPendaftaranResource::class;
 
-    public function mount(int | string $record): void
+    public function mount(int|string $record): void
     {
         parent::mount($record);
 
@@ -26,7 +26,7 @@ class ViewVerifikasiPendaftaran extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        $bisaDinilai = fn(DriverProfile $record) => in_array($record->approval_status, [
+        $bisaDinilai = fn (DriverProfile $record) => in_array($record->approval_status, [
             DriverProfile::APPROVAL_PENDING,
             DriverProfile::APPROVAL_REVISION,
         ], true);
@@ -42,7 +42,7 @@ class ViewVerifikasiPendaftaran extends ViewRecord
                 ->modalDescription('Semua dokumen harus sudah ditandai valid. Setelah disetujui, driver pindah ke Daftar Driver.')
                 ->action(function (DriverProfile $record, $livewire) {
                     $hasil = RiwayatSanksiResource::jalankan(
-                        fn() => DriverVerificationService::setujui(Auth::user(), $record),
+                        fn () => DriverVerificationService::setujui(Auth::user(), $record),
                         'Pendaftaran disetujui, driver masuk ke Daftar Driver',
                     );
 
@@ -56,12 +56,12 @@ class ViewVerifikasiPendaftaran extends ViewRecord
                 ->label('Minta Perbaikan')
                 ->icon('heroicon-o-arrow-path')
                 ->color('info')
-                ->visible(fn(DriverProfile $record) => $record->approval_status === DriverProfile::APPROVAL_PENDING)
+                ->visible(fn (DriverProfile $record) => $record->approval_status === DriverProfile::APPROVAL_PENDING)
                 ->requiresConfirmation()
                 ->modalHeading('Minta driver memperbaiki dokumen?')
                 ->modalDescription('Dokumen yang ditandai tidak valid beserta catatannya akan dikirim ke driver. Minimal satu dokumen harus tidak valid.')
-                ->action(fn(DriverProfile $record) => RiwayatSanksiResource::jalankan(
-                    fn() => DriverVerificationService::mintaPerbaikan(Auth::user(), $record),
+                ->action(fn (DriverProfile $record) => RiwayatSanksiResource::jalankan(
+                    fn () => DriverVerificationService::mintaPerbaikan(Auth::user(), $record),
                     'Permintaan perbaikan dikirim ke driver',
                 )),
 
@@ -78,8 +78,8 @@ class ViewVerifikasiPendaftaran extends ViewRecord
                         ->rows(3)
                         ->helperText('Alasan ini dilihat driver.'),
                 ])
-                ->action(fn(DriverProfile $record, array $data) => RiwayatSanksiResource::jalankan(
-                    fn() => DriverVerificationService::tolak(Auth::user(), $record, $data['alasan']),
+                ->action(fn (DriverProfile $record, array $data) => RiwayatSanksiResource::jalankan(
+                    fn () => DriverVerificationService::tolak(Auth::user(), $record, $data['alasan']),
                     'Pendaftaran ditolak',
                 )),
         ];

@@ -25,7 +25,7 @@ class JenisPelanggaranResource extends Resource
 
     protected static ?string $slug = 'driver/jenis-pelanggaran';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Driver';
+    protected static string|UnitEnum|null $navigationGroup = 'Driver';
 
     protected static ?int $navigationSort = 5;
 
@@ -102,7 +102,7 @@ class JenisPelanggaranResource extends Resource
                     ->sortable(),
                 TextColumn::make('rentang')
                     ->label('Rentang poin')
-                    ->state(fn(ViolationType $record) => $record->min_points . ' - ' . $record->max_points),
+                    ->state(fn (ViolationType $record) => $record->min_points.' - '.$record->max_points),
                 TextColumn::make('violations_count')
                     ->label('Dipakai')
                     ->counts('violations')
@@ -120,8 +120,8 @@ class JenisPelanggaranResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->disabled(fn(ViolationType $record) => $record->violations()->exists())
-                    ->tooltip(fn(ViolationType $record) => $record->violations()->exists()
+                    ->disabled(fn (ViolationType $record) => $record->violations()->exists())
+                    ->tooltip(fn (ViolationType $record) => $record->violations()->exists()
                         ? 'Sudah pernah dipakai di laporan. Nonaktifkan saja.'
                         : null)
                     ->before(function (DeleteAction $action, ViolationType $record) {

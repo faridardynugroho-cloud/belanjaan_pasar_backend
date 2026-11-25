@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,12 +11,20 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
+    use HasFactory;
+
     public const STATUS_PENDING_PAYMENT = 'pending_payment';
+
     public const STATUS_PAID = 'paid';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_READY_FOR_DELIVERY = 'ready_for_delivery';
+
     public const STATUS_ON_DELIVERY = 'on_delivery';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     protected $primaryKey = 'order_id';
