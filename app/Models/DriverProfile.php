@@ -93,7 +93,7 @@ class DriverProfile extends Model
     public function currentSanction(): HasOne
     {
         return $this->hasOne(DriverSanction::class, 'driver_profile_id', 'driver_profile_id')
-            ->ofMany('driver_sanction_id', 'max', fn ($query) => $query->open());
+            ->ofMany(['driver_sanction_id' => 'max'], fn($query) => $query->open());
     }
 
     /** Total poin aktif: pelanggaran divalidasi yang belum kedaluwarsa. Tidak disimpan, selalu dihitung. */
