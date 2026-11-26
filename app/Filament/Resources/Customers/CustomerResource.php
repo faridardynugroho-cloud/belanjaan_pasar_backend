@@ -7,6 +7,7 @@ use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\RelationManagers\AddressesRelationManager;
 use App\Filament\Resources\Customers\RelationManagers\OrdersRelationManager;
 use App\Models\User;
+use App\Support\Gender;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -21,7 +22,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
-use App\Support\Gender;
 
 class CustomerResource extends Resource
 {
@@ -29,13 +29,13 @@ class CustomerResource extends Resource
 
     protected static ?string $slug = 'customers';
 
-    protected static string | UnitEnum | null $navigationGroup = 'MANAJEMEN DATA';
+    protected static string|UnitEnum|null $navigationGroup = 'MANAJEMEN DATA';
 
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Customer';
 
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-users';
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
     protected static ?string $modelLabel = 'Customer';
 
@@ -76,7 +76,7 @@ class CustomerResource extends Resource
                     TextEntry::make('created_at')->label('Terdaftar')->dateTime('d M Y H:i'),
                     TextEntry::make('gender')
                         ->label('Jenis kelamin')
-                        ->state(fn(User $record) => Gender::label($record->gender)),
+                        ->state(fn (User $record) => Gender::label($record->gender)),
                     TextEntry::make('birth_date')->label('Tanggal lahir')->date('d M Y')->placeholder('-'),
                     TextEntry::make('address')->label('Alamat lengkap')->placeholder('-')->columnSpanFull(),
                 ]),
@@ -86,17 +86,17 @@ class CustomerResource extends Resource
                 ->schema([
                     TextEntry::make('total_pesanan')
                         ->label('Total pesanan')
-                        ->state(fn(User $record) => $record->orders()->count()),
+                        ->state(fn (User $record) => $record->orders()->count()),
                     TextEntry::make('pesanan_selesai')
                         ->label('Pesanan selesai')
-                        ->state(fn(User $record) => $record->orders()->where('status', 'completed')->count()),
+                        ->state(fn (User $record) => $record->orders()->where('status', 'completed')->count()),
                     TextEntry::make('total_belanja')
                         ->label('Total belanja (selesai)')
-                        ->state(fn(User $record) => $record->orders()->where('status', 'completed')->sum('grand_total'))
+                        ->state(fn (User $record) => $record->orders()->where('status', 'completed')->sum('grand_total'))
                         ->money('IDR', locale: 'id', decimalPlaces: 0),
                     TextEntry::make('total_ngebelanjain')
                         ->label('Permintaan Ngebelanjain')
-                        ->state(fn(User $record) => $record->shoppingRequests()->count()),
+                        ->state(fn (User $record) => $record->shoppingRequests()->count()),
                 ]),
         ]);
     }
@@ -115,13 +115,13 @@ class CustomerResource extends Resource
                     ->sortable(),
                 TextColumn::make('orders_sum_grand_total')
                     ->label('Total belanja (selesai)')
-                    ->sum(['orders' => fn(Builder $query) => $query->where('status', 'completed')], 'grand_total')
+                    ->sum(['orders' => fn (Builder $query) => $query->where('status', 'completed')], 'grand_total')
                     ->money('IDR', locale: 'id', decimalPlaces: 0)
                     ->sortable(),
                 TextColumn::make('created_at')->label('Terdaftar')->dateTime('d M Y')->sortable(),
                 TextColumn::make('gender')
                     ->label('Jenis kelamin')
-                    ->formatStateUsing(fn(?string $state) => Gender::label($state))
+                    ->formatStateUsing(fn (?string $state) => Gender::label($state))
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('birth_date')
                     ->label('Tanggal lahir')
@@ -135,9 +135,9 @@ class CustomerResource extends Resource
                     ->trueLabel('Pernah memesan')
                     ->falseLabel('Belum pernah memesan')
                     ->queries(
-                        true: fn(Builder $q) => $q->has('orders'),
-                        false: fn(Builder $q) => $q->doesntHave('orders'),
-                        blank: fn(Builder $q) => $q,
+                        true: fn (Builder $q) => $q->has('orders'),
+                        false: fn (Builder $q) => $q->doesntHave('orders'),
+                        blank: fn (Builder $q) => $q,
                     ),
 
                 Filter::make('terdaftar')
@@ -145,9 +145,9 @@ class CustomerResource extends Resource
                         DatePicker::make('dari')->label('Daftar dari'),
                         DatePicker::make('sampai')->label('Daftar sampai'),
                     ])
-                    ->query(fn(Builder $query, array $data) => $query
-                        ->when($data['dari'] ?? null, fn($q, $d) => $q->whereDate('created_at', '>=', $d))
-                        ->when($data['sampai'] ?? null, fn($q, $d) => $q->whereDate('created_at', '<=', $d))),
+                    ->query(fn (Builder $query, array $data) => $query
+                        ->when($data['dari'] ?? null, fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
+                        ->when($data['sampai'] ?? null, fn ($q, $d) => $q->whereDate('created_at', '<=', $d))),
             ])
             ->recordActions([
                 ViewAction::make()->label('Detail'),

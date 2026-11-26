@@ -4,14 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 
 class DriverDocumentCheck extends Model
 {
     public const ITEM_KTP = 'ktp';
+
     public const ITEM_SELFIE = 'selfie';
+
     public const ITEM_SIM = 'sim';
+
     public const ITEM_VEHICLE = 'vehicle';
+
     public const ITEM_STNK = 'stnk';
 
     /** Urutan tampil. */
@@ -24,7 +29,9 @@ class DriverDocumentCheck extends Model
     ];
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_VALID = 'valid';
+
     public const STATUS_INVALID = 'invalid';
 
     protected $primaryKey = 'driver_document_check_id';
@@ -90,7 +97,7 @@ class DriverDocumentCheck extends Model
             return null;
         }
 
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('public');
 
         return $disk->url($path);
@@ -102,17 +109,17 @@ class DriverDocumentCheck extends Model
         $driver = $this->driverProfile;
 
         return match ($this->item) {
-            self::ITEM_KTP => $driver?->document ? 'NIK ' . $driver->document->nik : null,
+            self::ITEM_KTP => $driver?->document ? 'NIK '.$driver->document->nik : null,
             self::ITEM_SIM => $driver?->document
-                ? 'No. SIM ' . $driver->document->sim_number
-                    . ', berlaku sampai ' . $driver->document->sim_expired_at?->format('d M Y')
-                    . ($driver->document->sim_expired_at?->isPast() ? ' (KEDALUWARSA)' : '')
+                ? 'No. SIM '.$driver->document->sim_number
+                    .', berlaku sampai '.$driver->document->sim_expired_at?->format('d M Y')
+                    .($driver->document->sim_expired_at?->isPast() ? ' (KEDALUWARSA)' : '')
                 : null,
             self::ITEM_VEHICLE => $driver?->vehicle
-                ? $driver->vehicle->vehicle_brand . ' ' . $driver->vehicle->vehicle_model
-                    . ', ' . $driver->vehicle->vehicle_color . ', ' . $driver->vehicle->production_year
+                ? $driver->vehicle->vehicle_brand.' '.$driver->vehicle->vehicle_model
+                    .', '.$driver->vehicle->vehicle_color.', '.$driver->vehicle->production_year
                 : null,
-            self::ITEM_STNK => $driver?->vehicle ? 'Plat ' . $driver->vehicle->vehicle_plate : null,
+            self::ITEM_STNK => $driver?->vehicle ? 'Plat '.$driver->vehicle->vehicle_plate : null,
             default => null,
         };
     }

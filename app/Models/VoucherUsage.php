@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class VoucherUsage extends Model
 {
     public const STATUS_APPLIED = 'applied';
+
     public const STATUS_RELEASED = 'released';
 
     protected $primaryKey = 'voucher_usage_id';

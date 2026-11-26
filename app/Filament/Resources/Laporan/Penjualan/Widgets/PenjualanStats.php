@@ -30,7 +30,7 @@ class PenjualanStats extends StatsOverviewWidget
         $batal = $semuaStatus()->where('orders.status', 'cancelled')->count();
         $persenBatal = $semua > 0 ? round($batal / $semua * 100) : 0;
 
-        $rupiah = fn ($v) => 'Rp ' . number_format((float) $v, 0, ',', '.');
+        $rupiah = fn ($v) => 'Rp '.number_format((float) $v, 0, ',', '.');
 
         return [
             Stat::make('Total Penjualan', $rupiah($total))

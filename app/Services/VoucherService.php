@@ -139,7 +139,7 @@ class VoucherService
 
         if ($subtotal < (float) $voucher->min_purchase) {
             throw new DomainException(
-                'Minimal belanja Rp' . number_format((float) $voucher->min_purchase, 0, ',', '.') . ' belum terpenuhi.',
+                'Minimal belanja Rp'.number_format((float) $voucher->min_purchase, 0, ',', '.').' belum terpenuhi.',
             );
         }
 

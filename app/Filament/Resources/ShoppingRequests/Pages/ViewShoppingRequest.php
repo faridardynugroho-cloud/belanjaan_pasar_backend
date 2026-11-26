@@ -18,8 +18,8 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Enums\Width;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ViewShoppingRequest extends ViewRecord
@@ -30,12 +30,12 @@ class ViewShoppingRequest extends ViewRecord
     {
         return [
             Action::make('moderasiRating')
-                ->label(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview?->is_visible
+                ->label(fn (ShoppingRequest $record) => $record->order?->shoppingRequestReview?->is_visible
                     ? 'Sembunyikan Rating'
                     : 'Tampilkan Rating')
                 ->icon('heroicon-o-eye-slash')
                 ->color('gray')
-                ->visible(fn(ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
+                ->visible(fn (ShoppingRequest $record) => $record->order?->shoppingRequestReview !== null)
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
                     $review = $record->order->shoppingRequestReview;
@@ -49,12 +49,12 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Tugaskan Helper')
                 ->icon('heroicon-o-user-plus')
                 ->color('info')
-                ->visible(fn(ShoppingRequest $record) => $record->status === 'pending')
+                ->visible(fn (ShoppingRequest $record) => $record->status === 'pending')
                 ->schema([
                     Select::make('helper_id')
                         ->label('Helper')
-                        ->options(fn() => Helper::where('is_active', true)->pluck('name', 'helper_id'))
-                        ->default(fn() => Helper::where('is_active', true)->value('helper_id'))
+                        ->options(fn () => Helper::where('is_active', true)->pluck('name', 'helper_id'))
+                        ->default(fn () => Helper::where('is_active', true)->value('helper_id'))
                         ->required(),
                 ])
                 ->action(function (ShoppingRequest $record, array $data) {
@@ -75,7 +75,7 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Mulai Belanja')
                 ->icon('heroicon-o-play')
                 ->color('info')
-                ->visible(fn(ShoppingRequest $record) => $record->status === 'assigned')
+                ->visible(fn (ShoppingRequest $record) => $record->status === 'assigned')
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
                     $record->update(['status' => 'shopping']);
@@ -88,9 +88,9 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Input Hasil Belanja')
                 ->icon('heroicon-o-pencil-square')
                 ->color('primary')
-                ->visible(fn(ShoppingRequest $record) => $record->status === 'shopping' && ! $record->order()->exists())
+                ->visible(fn (ShoppingRequest $record) => $record->status === 'shopping' && ! $record->order()->exists())
                 ->modalWidth(Width::FiveExtraLarge)
-                ->fillForm(fn(ShoppingRequest $record) => $this->hasilDefaults($record))
+                ->fillForm(fn (ShoppingRequest $record) => $this->hasilDefaults($record))
                 ->schema([
                     Radio::make('mode')
                         ->label('Metode input')
@@ -105,7 +105,7 @@ class ViewShoppingRequest extends ViewRecord
 
                     Repeater::make('items')
                         ->label('Rincian barang')
-                        ->visible(fn(Get $get) => $get('mode') === 'rincian')
+                        ->visible(fn (Get $get) => $get('mode') === 'rincian')
                         ->minItems(1)
                         ->columns(5)
                         ->addActionLabel('Tambah barang')
@@ -127,14 +127,14 @@ class ViewShoppingRequest extends ViewRecord
                         ->numeric()
                         ->prefix('Rp')
                         ->minValue(1)
-                        ->visible(fn(Get $get) => $get('mode') === 'total')
+                        ->visible(fn (Get $get) => $get('mode') === 'total')
                         ->required(),
 
                     TextInput::make('total_weight_kg')
                         ->label('Total berat (kg)')
                         ->numeric()
                         ->minValue(0.01)
-                        ->visible(fn(Get $get) => $get('mode') === 'total')
+                        ->visible(fn (Get $get) => $get('mode') === 'total')
                         ->required(),
 
                     TextInput::make('service_fee')
@@ -193,14 +193,14 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Kirim Harga')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success')
-                ->visible(fn(ShoppingRequest $record) => $record->status === 'shopping'
+                ->visible(fn (ShoppingRequest $record) => $record->status === 'shopping'
                     && $record->total > 0
                     && ! $record->order()->exists())
                 ->requiresConfirmation()
                 ->modalHeading('Kirim harga ke customer?')
-                ->modalDescription(fn(ShoppingRequest $record) => 'Total tagihan Rp '
-                    . number_format($record->total + $record->service_fee, 0, ',', '.')
-                    . '. Sistem akan membuat pesanan dan tagihan pembayaran (menunggu pembayaran).')
+                ->modalDescription(fn (ShoppingRequest $record) => 'Total tagihan Rp '
+                    .number_format($record->total + $record->service_fee, 0, ',', '.')
+                    .'. Sistem akan membuat pesanan dan tagihan pembayaran (menunggu pembayaran).')
                 ->action(function (ShoppingRequest $record) {
 
                     $order = DB::transaction(function () use ($record) {
@@ -223,7 +223,7 @@ class ViewShoppingRequest extends ViewRecord
                             'user_id' => $req->user_id,
                             'market_id' => $req->market_id,
                             'shopping_request_id' => $req->getKey(),
-                            'order_number' => 'ORD-' . now()->format('Ymd') . '-' . Str::upper(Str::random(6)),
+                            'order_number' => 'ORD-'.now()->format('Ymd').'-'.Str::upper(Str::random(6)),
                             // snapshot alamat
                             'recipient_name' => $req->recipient_name,
                             'recipient_phone' => $req->recipient_phone,
@@ -267,7 +267,7 @@ class ViewShoppingRequest extends ViewRecord
 
                         Payment::create([
                             'order_id' => $order->getKey(),
-                            'payment_number' => 'PAY-' . now()->format('Ymd') . '-' . Str::upper(Str::random(6)),
+                            'payment_number' => 'PAY-'.now()->format('Ymd').'-'.Str::upper(Str::random(6)),
                             'amount' => $grandTotal,
                             'status' => 'pending',
                             'expired_at' => now()->addDay(),
@@ -298,7 +298,7 @@ class ViewShoppingRequest extends ViewRecord
                 ->label('Batalkan')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn(ShoppingRequest $record) => in_array($record->status, ['pending', 'assigned', 'shopping']))
+                ->visible(fn (ShoppingRequest $record) => in_array($record->status, ['pending', 'assigned', 'shopping']))
                 ->requiresConfirmation()
                 ->action(function (ShoppingRequest $record) {
                     $record->update(['status' => 'cancelled']);
@@ -314,7 +314,7 @@ class ViewShoppingRequest extends ViewRecord
 
         return [
             'mode' => $items->isEmpty() && $record->total > 0 ? 'total' : 'rincian',
-            'items' => $items->map(fn($i) => [
+            'items' => $items->map(fn ($i) => [
                 'name' => $i->name,
                 'quantity' => (float) $i->quantity,
                 'unit' => $i->unit,

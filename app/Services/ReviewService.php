@@ -129,7 +129,7 @@ class ReviewService
             }
 
             if (! $review->isEditable()) {
-                throw new DomainException('Rating hanya bisa diubah dalam ' . config('review.edit_hours') . ' jam setelah dikirim.');
+                throw new DomainException('Rating hanya bisa diubah dalam '.config('review.edit_hours').' jam setelah dikirim.');
             }
 
             $review->update(['rating' => $rating, 'comment' => $komentar]);
@@ -216,7 +216,7 @@ class ReviewService
     private static function pastikanMasihDalamBatas(?Carbon $selesai): void
     {
         if ($selesai && $selesai->copy()->addDays((int) config('review.submit_days'))->isPast()) {
-            throw new DomainException('Batas waktu memberi rating (' . config('review.submit_days') . ' hari) sudah lewat.');
+            throw new DomainException('Batas waktu memberi rating ('.config('review.submit_days').' hari) sudah lewat.');
         }
     }
 }

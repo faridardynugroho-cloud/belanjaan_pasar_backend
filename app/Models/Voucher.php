@@ -3,16 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Voucher extends Model
 {
     public const APPLIES_SUBTOTAL = 'subtotal';
+
     public const APPLIES_DELIVERY_FEE = 'delivery_fee';
 
     public const TYPE_PERCENT = 'percent';
+
     public const TYPE_FIXED = 'fixed';
 
     protected $primaryKey = 'voucher_id';
@@ -55,7 +57,7 @@ class Voucher extends Model
     /** Kode disimpan huruf besar tanpa spasi, jadi "hemat10" dan "HEMAT10" dianggap sama. */
     protected function code(): Attribute
     {
-        return Attribute::make(set: fn(string $value) => strtoupper(trim($value)));
+        return Attribute::make(set: fn (string $value) => strtoupper(trim($value)));
     }
 
     public function scopeBerlaku(Builder $query): Builder

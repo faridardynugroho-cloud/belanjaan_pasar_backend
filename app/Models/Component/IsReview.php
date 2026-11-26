@@ -3,10 +3,11 @@
 namespace App\Models\Component;
 
 use Illuminate\Database\Eloquent\Builder;
-/**
- * @property \Illuminate\Support\Carbon|null $created_at
- */
+use Illuminate\Support\Carbon;
 
+/**
+ * @property Carbon|null $created_at
+ */
 trait IsReview
 {
     public function scopeVisible(Builder $query): Builder

@@ -51,7 +51,7 @@ class ListRiwayatSanksi extends ListRecords
                 ->schema([
                     Select::make('driver_profile_id')
                         ->label('Driver')
-                        ->options(fn() => RiwayatSanksiResource::opsiDriver())
+                        ->options(fn () => RiwayatSanksiResource::opsiDriver())
                         ->searchable()
                         ->required(),
 
@@ -67,21 +67,21 @@ class ListRiwayatSanksi extends ListRecords
                         ->required(),
 
                     Grid::make(2)
-                        ->visible(fn(Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
+                        ->visible(fn (Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
                         ->schema([
                             TextInput::make('durasi')
                                 ->label('Durasi')
                                 ->numeric()
                                 ->integer()
                                 ->minValue(1)
-                                ->required(fn(Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
+                                ->required(fn (Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY)
                                 ->helperText('Maksimal 60 hari. Lebih lama dari itu pakai sanksi permanen.'),
 
                             Select::make('satuan')
                                 ->label('Satuan')
                                 ->options(['menit' => 'Menit', 'jam' => 'Jam', 'hari' => 'Hari'])
                                 ->default('jam')
-                                ->required(fn(Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY),
+                                ->required(fn (Get $get) => $get('tipe') === DriverSanction::TYPE_TEMPORARY),
                         ]),
 
                     Textarea::make('alasan')->label('Alasan')->required()->rows(3),
@@ -96,7 +96,7 @@ class ListRiwayatSanksi extends ListRecords
                     }
 
                     RiwayatSanksiResource::jalankan(
-                        fn() => DriverSanctionService::jatuhkanManual(
+                        fn () => DriverSanctionService::jatuhkanManual(
                             Auth::user(),
                             DriverProfile::findOrFail($data['driver_profile_id']),
                             $data['tipe'],
@@ -125,7 +125,7 @@ class ListRiwayatSanksi extends ListRecords
 
                     Tab::make('Laporan Pelanggaran')
                         ->icon('heroicon-o-flag')
-                        ->badge(fn() => DriverViolation::where('status', DriverViolation::STATUS_REPORTED)->count() ?: null)
+                        ->badge(fn () => DriverViolation::where('status', DriverViolation::STATUS_REPORTED)->count() ?: null)
                         ->badgeColor('warning')
                         ->schema([
                             Livewire::make(LaporanPelanggaranTable::class),

@@ -24,7 +24,7 @@ class ProductReview extends Model
     protected function casts(): array
     {
         return [
-            
+
             'rating' => 'integer',
             'is_visible' => 'boolean',
         ];

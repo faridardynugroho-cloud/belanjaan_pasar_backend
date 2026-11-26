@@ -2,17 +2,25 @@
 
 namespace App\Models;
 
+use App\Enums\ApprovalStatus;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class DriverProfile extends Model
 {
+    use HasFactory;
+
     // Status pendaftaran: pending (menunggu diperiksa), revision (diminta perbaiki dokumen), approved, rejected
     public const APPROVAL_PENDING = 'pending';
+
     public const APPROVAL_REVISION = 'revision';
+
     public const APPROVAL_APPROVED = 'approved';
+
     public const APPROVAL_REJECTED = 'rejected';
 
     protected $primaryKey = 'driver_profile_id';
@@ -42,6 +50,23 @@ class DriverProfile extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approval_status === ApprovalStatus::Approved->value;
+    }
+
+    public function location(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            DriverLocation::class,
+            User::class,
+            'user_id',
+            'user_id',
+            'user_id',
+            'user_id',
+        );
     }
 
     public function scopeAvailable($query)

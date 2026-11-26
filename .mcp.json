@@ -1,10 +1,9 @@
 {
     "mcpServers": {
         "laravel-boost": {
-            "command": "wsl.exe",
+            "command": "php",
             "args": [
-                "/usr/bin/php8.3",
-                "/home/ardy/belanjaan_pasar_backend/artisan",
+                "artisan",
                 "boost:mcp"
             ]
         }

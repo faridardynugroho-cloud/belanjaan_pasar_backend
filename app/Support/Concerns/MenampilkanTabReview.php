@@ -22,17 +22,17 @@ trait MenampilkanTabReview
 
             'tampil' => Tab::make('Tampil')
                 ->badge($model::where('is_visible', true)->count())
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('is_visible', true)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_visible', true)),
 
             'disembunyikan' => Tab::make('Disembunyikan')
                 ->badge($model::where('is_visible', false)->count())
                 ->badgeColor('gray')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('is_visible', false)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('is_visible', false)),
 
             'rendah' => Tab::make('Rating rendah (1-2)')
                 ->badge($model::where('rating', '<=', 2)->count())
                 ->badgeColor('danger')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('rating', '<=', 2)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('rating', '<=', 2)),
         ];
     }
 
@@ -45,7 +45,7 @@ trait MenampilkanTabReview
             ->first();
 
         return $stat->jumlah > 0
-            ? 'Rata-rata ★ ' . number_format((float) $stat->rata, 1, ',', '.') . ' dari ' . $stat->jumlah . ' ulasan yang tampil'
+            ? 'Rata-rata ★ '.number_format((float) $stat->rata, 1, ',', '.').' dari '.$stat->jumlah.' ulasan yang tampil'
             : 'Belum ada ulasan';
     }
 }

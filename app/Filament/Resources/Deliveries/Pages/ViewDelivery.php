@@ -21,7 +21,7 @@ class ViewDelivery extends ViewRecord
                 ->label('Mulai Pengiriman')
                 ->icon('heroicon-o-play')
                 ->color('primary')
-                ->visible(fn(Delivery $record) => $record->status === 'pending')
+                ->visible(fn (Delivery $record) => $record->status === 'pending')
                 ->requiresConfirmation()
                 ->modalDescription('Semua pesanan di pengiriman ini berubah jadi "Dalam Pengiriman".')
                 ->action(function (Delivery $record) {
@@ -42,7 +42,7 @@ class ViewDelivery extends ViewRecord
                 ->label('Batalkan')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn(Delivery $record) => in_array($record->status, ['pending', 'on_the_way']))
+                ->visible(fn (Delivery $record) => in_array($record->status, ['pending', 'on_the_way']))
                 ->requiresConfirmation()
                 ->modalDescription('Pesanan yang belum terkirim dikembalikan ke "Siap Dikirim" supaya bisa dijadwalkan ulang. Pesanan yang sudah terkirim tetap Selesai.')
                 ->action(function (Delivery $record) {

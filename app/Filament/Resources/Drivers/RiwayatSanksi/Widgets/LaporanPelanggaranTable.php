@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
@@ -25,12 +26,12 @@ class LaporanPelanggaranTable extends TableWidget
 {
     protected static ?string $heading = 'Laporan Pelanggaran Driver';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int|string|array $columnSpan = 'full';
 
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn(): Builder => DriverViolation::query()->with([
+            ->query(fn (): Builder => DriverViolation::query()->with([
                 'driverProfile.user',
                 'violationType',
                 'reporter',
@@ -47,7 +48,7 @@ class LaporanPelanggaranTable extends TableWidget
                 TextColumn::make('driverProfile.user.name')
                     ->label('Driver')
                     ->searchable()
-                    ->description(fn(DriverViolation $record) => 'ID Driver: ' . $record->driver_profile_id),
+                    ->description(fn (DriverViolation $record) => 'ID Driver: '.$record->driver_profile_id),
 
                 TextColumn::make('violationType.name')
                     ->label('Pelanggaran')
@@ -57,8 +58,8 @@ class LaporanPelanggaranTable extends TableWidget
                 TextColumn::make('source')
                     ->label('Sumber')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => $state === DriverViolation::SOURCE_CUSTOMER ? 'Customer' : 'Admin')
-                    ->color(fn(string $state) => $state === DriverViolation::SOURCE_CUSTOMER ? 'info' : 'gray'),
+                    ->formatStateUsing(fn (string $state) => $state === DriverViolation::SOURCE_CUSTOMER ? 'Customer' : 'Admin')
+                    ->color(fn (string $state) => $state === DriverViolation::SOURCE_CUSTOMER ? 'info' : 'gray'),
 
                 TextColumn::make('reporter.name')->label('Pelapor')->placeholder('-'),
 
@@ -70,8 +71,8 @@ class LaporanPelanggaranTable extends TableWidget
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => static::labelStatus($state))
-                    ->color(fn(string $state) => match ($state) {
+                    ->formatStateUsing(fn (string $state) => static::labelStatus($state))
+                    ->color(fn (string $state) => match ($state) {
                         DriverViolation::STATUS_REPORTED => 'warning',
                         DriverViolation::STATUS_VALIDATED => 'success',
                         DriverViolation::STATUS_REJECTED => 'danger',
@@ -98,11 +99,11 @@ class LaporanPelanggaranTable extends TableWidget
 
                 SelectFilter::make('violation_type_id')
                     ->label('Jenis pelanggaran')
-                    ->options(fn() => ViolationType::orderBy('name')->pluck('name', 'violation_type_id')->all()),
+                    ->options(fn () => ViolationType::orderBy('name')->pluck('name', 'violation_type_id')->all()),
 
                 SelectFilter::make('driver_profile_id')
                     ->label('Driver')
-                    ->options(fn() => RiwayatSanksiResource::opsiDriver(true))
+                    ->options(fn () => RiwayatSanksiResource::opsiDriver(true))
                     ->searchable(),
             ])
             ->headerActions([
@@ -113,13 +114,13 @@ class LaporanPelanggaranTable extends TableWidget
                     ->schema([
                         Select::make('driver_profile_id')
                             ->label('Driver')
-                            ->options(fn() => RiwayatSanksiResource::opsiDriver())
+                            ->options(fn () => RiwayatSanksiResource::opsiDriver())
                             ->searchable()
                             ->required(),
 
                         Select::make('violation_type_id')
                             ->label('Jenis pelanggaran')
-                            ->options(fn() => ViolationType::active()->orderBy('name')->pluck('name', 'violation_type_id')->all())
+                            ->options(fn () => ViolationType::active()->orderBy('name')->pluck('name', 'violation_type_id')->all())
                             ->searchable()
                             ->required(),
 
@@ -132,8 +133,8 @@ class LaporanPelanggaranTable extends TableWidget
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                             ->maxSize(5120),
                     ])
-                    ->action(fn(array $data) => RiwayatSanksiResource::jalankan(
-                        fn() => DriverSanctionService::laporkanOlehAdmin(
+                    ->action(fn (array $data) => RiwayatSanksiResource::jalankan(
+                        fn () => DriverSanctionService::laporkanOlehAdmin(
                             Auth::user(),
                             DriverProfile::findOrFail($data['driver_profile_id']),
                             ViolationType::findOrFail($data['violation_type_id']),
@@ -149,18 +150,18 @@ class LaporanPelanggaranTable extends TableWidget
                     ->label('Detail')
                     ->icon('heroicon-o-eye')
                     ->color('gray')
-                    ->modalHeading(fn(DriverViolation $record) => 'Laporan #' . $record->getKey())
+                    ->modalHeading(fn (DriverViolation $record) => 'Laporan #'.$record->getKey())
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Tutup')
-                    ->modalContent(fn(DriverViolation $record) => RiwayatSanksiResource::htmlDetail([
-                        'Driver' => $record->driverProfile?->user?->name . ' (ID ' . $record->driver_profile_id . ')',
+                    ->modalContent(fn (DriverViolation $record) => RiwayatSanksiResource::htmlDetail([
+                        'Driver' => $record->driverProfile?->user?->name.' (ID '.$record->driver_profile_id.')',
                         'Pelanggaran' => $record->violationType?->name,
                         'Sumber' => $record->source === DriverViolation::SOURCE_CUSTOMER ? 'Customer' : 'Admin',
                         'Pelapor' => $record->reporter?->name,
-                        'Pengantaran' => $record->delivery_order_id ? '#' . $record->delivery_order_id : null,
+                        'Pengantaran' => $record->delivery_order_id ? '#'.$record->delivery_order_id : null,
                         'Deskripsi' => $record->description,
                         'Bukti' => $record->evidence_photo
-                            ? new HtmlString('<a href="' . e(static::urlBukti($record->evidence_photo)) . '" target="_blank" rel="noopener" style="color:var(--primary-600);text-decoration:underline">Buka bukti</a>')
+                            ? new HtmlString('<a href="'.e(static::urlBukti($record->evidence_photo)).'" target="_blank" rel="noopener" style="color:var(--primary-600);text-decoration:underline">Buka bukti</a>')
                             : null,
                         'Status' => static::labelStatus($record->status),
                         'Poin' => $record->points,
@@ -177,17 +178,17 @@ class LaporanPelanggaranTable extends TableWidget
                     ->label('Validasi')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
-                    ->visible(fn(DriverViolation $record) => $record->status === DriverViolation::STATUS_REPORTED)
+                    ->visible(fn (DriverViolation $record) => $record->status === DriverViolation::STATUS_REPORTED)
                     ->modalHeading('Validasi laporan')
-                    ->modalDescription(fn(DriverViolation $record) => $record->violationType->name
-                        . ': poin harus di antara ' . $record->violationType->min_points
-                        . ' dan ' . $record->violationType->max_points . '.')
-                    ->fillForm(fn(DriverViolation $record) => ['poin' => $record->violationType->default_points])
+                    ->modalDescription(fn (DriverViolation $record) => $record->violationType->name
+                        .': poin harus di antara '.$record->violationType->min_points
+                        .' dan '.$record->violationType->max_points.'.')
+                    ->fillForm(fn (DriverViolation $record) => ['poin' => $record->violationType->default_points])
                     ->schema([
                         TextInput::make('poin')->label('Poin diberikan')->numeric()->integer()->minValue(1)->required(),
                     ])
-                    ->action(fn(DriverViolation $record, array $data) => RiwayatSanksiResource::jalankan(
-                        fn() => DriverSanctionService::validasiLaporan(Auth::user(), $record, (int) $data['poin']),
+                    ->action(fn (DriverViolation $record, array $data) => RiwayatSanksiResource::jalankan(
+                        fn () => DriverSanctionService::validasiLaporan(Auth::user(), $record, (int) $data['poin']),
                         'Laporan divalidasi, poin diberikan',
                     )),
 
@@ -195,13 +196,13 @@ class LaporanPelanggaranTable extends TableWidget
                     ->label('Tolak')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn(DriverViolation $record) => $record->status === DriverViolation::STATUS_REPORTED)
+                    ->visible(fn (DriverViolation $record) => $record->status === DriverViolation::STATUS_REPORTED)
                     ->modalHeading('Tolak laporan')
                     ->schema([
                         Textarea::make('catatan')->label('Alasan penolakan')->required()->rows(3),
                     ])
-                    ->action(fn(DriverViolation $record, array $data) => RiwayatSanksiResource::jalankan(
-                        fn() => DriverSanctionService::tolakLaporan(Auth::user(), $record, $data['catatan']),
+                    ->action(fn (DriverViolation $record, array $data) => RiwayatSanksiResource::jalankan(
+                        fn () => DriverSanctionService::tolakLaporan(Auth::user(), $record, $data['catatan']),
                         'Laporan ditolak',
                     )),
 
@@ -209,14 +210,14 @@ class LaporanPelanggaranTable extends TableWidget
                     ->label('Batalkan Validasi')
                     ->icon('heroicon-o-arrow-uturn-left')
                     ->color('warning')
-                    ->visible(fn(DriverViolation $record) => $record->status === DriverViolation::STATUS_VALIDATED)
+                    ->visible(fn (DriverViolation $record) => $record->status === DriverViolation::STATUS_VALIDATED)
                     ->modalHeading('Batalkan validasi')
                     ->modalDescription('Poin laporan ini dihapus dan sanksi yang dipicunya ikut dicabut. Poin dan sanksi dari laporan lain tidak berubah.')
                     ->schema([
                         Textarea::make('catatan')->label('Alasan pembatalan')->required()->rows(3),
                     ])
-                    ->action(fn(DriverViolation $record, array $data) => RiwayatSanksiResource::jalankan(
-                        fn() => DriverSanctionService::batalkanValidasi(Auth::user(), $record, $data['catatan']),
+                    ->action(fn (DriverViolation $record, array $data) => RiwayatSanksiResource::jalankan(
+                        fn () => DriverSanctionService::batalkanValidasi(Auth::user(), $record, $data['catatan']),
                         'Validasi dibatalkan',
                     )),
             ]);
@@ -225,7 +226,7 @@ class LaporanPelanggaranTable extends TableWidget
     /** URL publik file bukti di disk `public`. */
     protected static function urlBukti(string $path): string
     {
-        /** @var \Illuminate\Filesystem\FilesystemAdapter $disk */
+        /** @var FilesystemAdapter $disk */
         $disk = Storage::disk('public');
 
         return $disk->url($path);

@@ -7,8 +7,10 @@ use App\Support\Rating;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\BaseFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -27,11 +29,11 @@ trait TabelReview
     {
         return TextColumn::make('rating')
             ->label('Rating')
-            ->formatStateUsing(fn($state) => Rating::bintang((int) $state))
+            ->formatStateUsing(fn ($state) => Rating::bintang((int) $state))
             ->sortable();
     }
 
-    /** @return array<\Filament\Tables\Columns\Column> */
+    /** @return array<Column> */
     protected static function kolomUmum(): array
     {
         return [
@@ -41,7 +43,7 @@ trait TabelReview
                 ->wrap()
                 ->placeholder('-')
                 ->searchable()
-                ->tooltip(fn(Model $record) => $record->comment),
+                ->tooltip(fn (Model $record) => $record->comment),
 
             TextColumn::make('user.name')->label('Customer')->searchable(),
 
@@ -51,13 +53,13 @@ trait TabelReview
         ];
     }
 
-    /** @return array<\Filament\Tables\Filters\BaseFilter> */
+    /** @return array<BaseFilter> */
     protected static function filterUmum(): array
     {
         return [
             SelectFilter::make('rating')
                 ->label('Rating')
-                ->options(collect([5, 4, 3, 2, 1])->mapWithKeys(fn(int $n) => [$n => Rating::bintang($n)])->all()),
+                ->options(collect([5, 4, 3, 2, 1])->mapWithKeys(fn (int $n) => [$n => Rating::bintang($n)])->all()),
 
             TernaryFilter::make('is_visible')
                 ->label('Status')
@@ -68,7 +70,7 @@ trait TabelReview
             Filter::make('ada_komentar')
                 ->label('Ada komentar')
                 ->toggle()
-                ->query(fn(Builder $query) => $query->whereNotNull('comment')->where('comment', '!=', '')),
+                ->query(fn (Builder $query) => $query->whereNotNull('comment')->where('comment', '!=', '')),
 
             Filter::make('periode')
                 ->label('Periode')
@@ -78,9 +80,9 @@ trait TabelReview
                 ])
                 ->columns(2)
                 ->columnSpan(2)
-                ->query(fn(Builder $query, array $data) => $query
-                    ->when($data['dari'] ?? null, fn(Builder $q, $tanggal) => $q->whereDate($q->getModel()->getTable() . '.created_at', '>=', $tanggal))
-                    ->when($data['sampai'] ?? null, fn(Builder $q, $tanggal) => $q->whereDate($q->getModel()->getTable() . '.created_at', '<=', $tanggal))),
+                ->query(fn (Builder $query, array $data) => $query
+                    ->when($data['dari'] ?? null, fn (Builder $q, $tanggal) => $q->whereDate($q->getModel()->getTable().'.created_at', '>=', $tanggal))
+                    ->when($data['sampai'] ?? null, fn (Builder $q, $tanggal) => $q->whereDate($q->getModel()->getTable().'.created_at', '<=', $tanggal))),
         ];
     }
 
@@ -107,7 +109,7 @@ trait TabelReview
             ->modalHeading('Detail ulasan')
             ->modalSubmitAction(false)
             ->modalCancelActionLabel('Tutup')
-            ->modalContent(fn(Model $record) => RiwayatSanksiResource::htmlDetail(
+            ->modalContent(fn (Model $record) => RiwayatSanksiResource::htmlDetail(
                 $barisKhusus($record) + static::barisDasar($record)
             ));
     }

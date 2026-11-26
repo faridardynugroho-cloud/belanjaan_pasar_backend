@@ -33,7 +33,7 @@ class DiskonProdukResource extends Resource
 
     protected static ?string $slug = 'promo/diskon-produk';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Promo';
+    protected static string|UnitEnum|null $navigationGroup = 'Promo';
 
     protected static ?int $navigationSort = 1;
 
@@ -51,15 +51,15 @@ class DiskonProdukResource extends Resource
                 ->required()
                 ->searchable()
                 ->live()
-                ->getSearchResultsUsing(fn(string $search) => MarketProduct::query()
+                ->getSearchResultsUsing(fn (string $search) => MarketProduct::query()
                     ->with(['product', 'market'])
-                    ->whereHas('product', fn(Builder $q) => $q->where('name', 'like', "%{$search}%"))
-                    ->orWhereHas('market', fn(Builder $q) => $q->where('name', 'like', "%{$search}%"))
+                    ->whereHas('product', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
+                    ->orWhereHas('market', fn (Builder $q) => $q->where('name', 'like', "%{$search}%"))
                     ->limit(50)
                     ->get()
-                    ->mapWithKeys(fn(MarketProduct $mp) => [$mp->getKey() => static::labelProduk($mp)])
+                    ->mapWithKeys(fn (MarketProduct $mp) => [$mp->getKey() => static::labelProduk($mp)])
                     ->all())
-                ->getOptionLabelUsing(fn($value) => ($mp = MarketProduct::with(['product', 'market'])->find($value))
+                ->getOptionLabelUsing(fn ($value) => ($mp = MarketProduct::with(['product', 'market'])->find($value))
                     ? static::labelProduk($mp)
                     : null)
                 ->helperText('Diskon berlaku untuk produk di satu pasar. Produk yang sama di pasar lain punya diskon sendiri.')
@@ -81,12 +81,12 @@ class DiskonProdukResource extends Resource
                     ->required()
                     ->numeric()
                     ->minValue(1)
-                    ->maxValue(fn(Get $get) => $get('type') === ProductDiscount::TYPE_PERCENT ? 100 : null)
-                    ->prefix(fn(Get $get) => $get('type') === ProductDiscount::TYPE_FIXED ? 'Rp' : null)
-                    ->suffix(fn(Get $get) => $get('type') === ProductDiscount::TYPE_PERCENT ? '%' : null)
+                    ->maxValue(fn (Get $get) => $get('type') === ProductDiscount::TYPE_PERCENT ? 100 : null)
+                    ->prefix(fn (Get $get) => $get('type') === ProductDiscount::TYPE_FIXED ? 'Rp' : null)
+                    ->suffix(fn (Get $get) => $get('type') === ProductDiscount::TYPE_PERCENT ? '%' : null)
                     ->helperText('Potongan per satuan produk (per kg, per ekor, dst).')
                     ->rules([
-                        fn(Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
+                        fn (Get $get): Closure => function (string $attribute, $value, Closure $fail) use ($get) {
                             if ($get('type') !== ProductDiscount::TYPE_FIXED) {
                                 return;
                             }
@@ -94,7 +94,7 @@ class DiskonProdukResource extends Resource
                             $mp = MarketProduct::find($get('market_product_id'));
 
                             if ($mp && (float) $value >= (float) $mp->price) {
-                                $fail('Potongan harus lebih kecil dari harga produk (' . static::rupiah($mp->price) . ').');
+                                $fail('Potongan harus lebih kecil dari harga produk ('.static::rupiah($mp->price).').');
                             }
                         },
                     ]),
@@ -117,7 +117,7 @@ class DiskonProdukResource extends Resource
                     ->displayFormat('d/m/Y H:i')
                     ->after('starts_at')
                     ->rules([
-                        fn(Get $get, ?Model $record): Closure => function (string $attribute, $value, Closure $fail) use ($get, $record) {
+                        fn (Get $get, ?Model $record): Closure => function (string $attribute, $value, Closure $fail) use ($get, $record) {
                             if (! $get('is_active') || ! $get('market_product_id') || ! $get('starts_at')) {
                                 return;
                             }
@@ -145,18 +145,18 @@ class DiskonProdukResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with(['marketProduct.product', 'marketProduct.market']))
+            ->modifyQueryUsing(fn (Builder $query) => $query->with(['marketProduct.product', 'marketProduct.market']))
             ->defaultSort('starts_at', 'desc')
             ->columns([
                 TextColumn::make('marketProduct.product.name')->label('Produk')->searchable()->wrap(),
                 TextColumn::make('marketProduct.market.name')->label('Pasar')->searchable(),
                 TextColumn::make('harga_normal')
                     ->label('Harga normal')
-                    ->state(fn(ProductDiscount $record) => static::rupiah($record->marketProduct->price)),
+                    ->state(fn (ProductDiscount $record) => static::rupiah($record->marketProduct->price)),
                 TextColumn::make('nilai')
                     ->label('Potongan')
-                    ->state(fn(ProductDiscount $record) => $record->type === ProductDiscount::TYPE_PERCENT
-                        ? static::angka($record->value) . '%'
+                    ->state(fn (ProductDiscount $record) => $record->type === ProductDiscount::TYPE_PERCENT
+                        ? static::angka($record->value).'%'
                         : static::rupiah($record->value)),
                 TextColumn::make('harga_akhir')
                     ->label('Harga setelah diskon')
@@ -167,14 +167,14 @@ class DiskonProdukResource extends Resource
                     }),
                 TextColumn::make('periode')
                     ->label('Periode')
-                    ->state(fn(ProductDiscount $record) => $record->starts_at->format('d/m/Y H:i')
-                        . ' - ' . $record->ends_at->format('d/m/Y H:i'))
-                    ->sortable(query: fn(Builder $query, string $direction) => $query->orderBy('starts_at', $direction)),
+                    ->state(fn (ProductDiscount $record) => $record->starts_at->format('d/m/Y H:i')
+                        .' - '.$record->ends_at->format('d/m/Y H:i'))
+                    ->sortable(query: fn (Builder $query, string $direction) => $query->orderBy('starts_at', $direction)),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->state(fn(ProductDiscount $record) => static::statusDiskon($record))
-                    ->color(fn(string $state) => match ($state) {
+                    ->state(fn (ProductDiscount $record) => static::statusDiskon($record))
+                    ->color(fn (string $state) => match ($state) {
                         'Berlaku' => 'success',
                         'Terjadwal' => 'info',
                         'Nonaktif' => 'danger',
@@ -184,10 +184,10 @@ class DiskonProdukResource extends Resource
             ->filters([
                 SelectFilter::make('market_id')
                     ->label('Pasar')
-                    ->options(fn() => Market::orderBy('name')->pluck('name', 'market_id')->all())
-                    ->query(fn(Builder $query, array $data) => $query->when(
+                    ->options(fn () => Market::orderBy('name')->pluck('name', 'market_id')->all())
+                    ->query(fn (Builder $query, array $data) => $query->when(
                         $data['value'] ?? null,
-                        fn(Builder $q, $marketId) => $q->whereHas('marketProduct', fn(Builder $mp) => $mp->where('market_id', $marketId)),
+                        fn (Builder $q, $marketId) => $q->whereHas('marketProduct', fn (Builder $mp) => $mp->where('market_id', $marketId)),
                     )),
 
                 SelectFilter::make('status')
@@ -198,7 +198,7 @@ class DiskonProdukResource extends Resource
                         'berakhir' => 'Berakhir',
                         'nonaktif' => 'Nonaktif',
                     ])
-                    ->query(fn(Builder $query, array $data) => match ($data['value'] ?? null) {
+                    ->query(fn (Builder $query, array $data) => match ($data['value'] ?? null) {
                         'berlaku' => $query->berlaku(),
                         'terjadwal' => $query->where('is_active', true)->where('starts_at', '>', now()),
                         'berakhir' => $query->where('is_active', true)->where('ends_at', '<', now()),
@@ -209,8 +209,8 @@ class DiskonProdukResource extends Resource
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->disabled(fn(ProductDiscount $record) => $record->orderItems()->exists())
-                    ->tooltip(fn(ProductDiscount $record) => $record->orderItems()->exists()
+                    ->disabled(fn (ProductDiscount $record) => $record->orderItems()->exists())
+                    ->tooltip(fn (ProductDiscount $record) => $record->orderItems()->exists()
                         ? 'Sudah dipakai di pesanan. Nonaktifkan saja.'
                         : null)
                     ->before(function (DeleteAction $action, ProductDiscount $record) {
@@ -249,12 +249,12 @@ class DiskonProdukResource extends Resource
 
     protected static function labelProduk(MarketProduct $mp): string
     {
-        return $mp->product->name . ' - ' . $mp->market->name . ' (' . static::rupiah($mp->price) . ')';
+        return $mp->product->name.' - '.$mp->market->name.' ('.static::rupiah($mp->price).')';
     }
 
     protected static function rupiah($nilai): string
     {
-        return 'Rp' . number_format((float) $nilai, 0, ',', '.');
+        return 'Rp'.number_format((float) $nilai, 0, ',', '.');
     }
 
     protected static function angka($nilai): string

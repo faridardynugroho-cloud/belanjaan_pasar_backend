@@ -11,7 +11,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\DB;
 
-
 class ViewPayment extends ViewRecord
 {
     protected static string $resource = PaymentResource::class;
@@ -24,7 +23,7 @@ class ViewPayment extends ViewRecord
                 ->label('Konfirmasi Pembayaran')
                 ->icon('heroicon-o-banknotes')
                 ->color('success')
-                 ->visible(fn (Payment $record) => $record->status === 'pending')
+                ->visible(fn (Payment $record) => $record->status === 'pending')
                 ->modalDescription('Pakai ini kalau uang sudah benar-benar masuk tapi status belum berubah otomatis. Pastikan dana sudah diterima sebelum konfirmasi.')
                 ->fillForm(fn (Payment $record) => [
                     'payment_method' => $record->payment_method,
@@ -88,7 +87,7 @@ class ViewPayment extends ViewRecord
 
                     Notification::make()->title('Pembayaran dikonfirmasi')->success()->send();
                 }),
-            
+
         ];
     }
 }

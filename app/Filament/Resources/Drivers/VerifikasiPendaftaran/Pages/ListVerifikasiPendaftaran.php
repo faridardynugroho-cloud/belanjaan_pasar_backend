@@ -12,30 +12,30 @@ class ListVerifikasiPendaftaran extends ListRecords
 {
     protected static string $resource = VerifikasiPendaftaranResource::class;
 
-    public function getDefaultActiveTab(): string | int | null
+    public function getDefaultActiveTab(): string|int|null
     {
         return 'menunggu';
     }
 
     public function getTabs(): array
     {
-        $hitung = fn(string $status) => DriverProfile::where('approval_status', $status)->count();
+        $hitung = fn (string $status) => DriverProfile::where('approval_status', $status)->count();
 
         return [
             'menunggu' => Tab::make('Menunggu')
                 ->badge($hitung(DriverProfile::APPROVAL_PENDING))
                 ->badgeColor('warning')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('approval_status', DriverProfile::APPROVAL_PENDING)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('approval_status', DriverProfile::APPROVAL_PENDING)),
 
             'perbaikan' => Tab::make('Perlu perbaikan')
                 ->badge($hitung(DriverProfile::APPROVAL_REVISION))
                 ->badgeColor('info')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('approval_status', DriverProfile::APPROVAL_REVISION)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('approval_status', DriverProfile::APPROVAL_REVISION)),
 
             'ditolak' => Tab::make('Ditolak')
                 ->badge($hitung(DriverProfile::APPROVAL_REJECTED))
                 ->badgeColor('danger')
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('approval_status', DriverProfile::APPROVAL_REJECTED)),
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('approval_status', DriverProfile::APPROVAL_REJECTED)),
 
             'semua' => Tab::make('Semua'),
         ];

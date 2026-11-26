@@ -10,18 +10,26 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class DriverSanction extends Model
 {
     public const TYPE_TEMPORARY = 'temporary';
+
     public const TYPE_PERMANENT = 'permanent';
+
     public const TYPE_TERMINATION = 'termination';
 
     public const LIFT_MANUAL = 'manual';
+
     public const LIFT_REPLACED = 'replaced';
 
     // Status turunan (tidak disimpan di database), dihitung dari timestamp.
     public const STATUS_LIFTED = 'lifted';         // dicabut admin
+
     public const STATUS_REPLACED = 'replaced';     // diganti sanksi baru
+
     public const STATUS_WAITING = 'waiting';       // menunggu pesanan driver selesai
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_EXPIRED = 'expired';
+
     public const STATUS_TERMINATED = 'terminated'; // putus mitra
 
     protected $primaryKey = 'driver_sanction_id';
@@ -140,6 +148,5 @@ class DriverSanction extends Model
     public function isImposedBySystem(): bool
     {
         return $this->imposed_by === null;
-   }
-
+    }
 }

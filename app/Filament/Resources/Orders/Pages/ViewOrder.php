@@ -4,11 +4,11 @@ namespace App\Filament\Resources\Orders\Pages;
 
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
+use App\Models\ShoppingRequest;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\DB;
-use App\Models\ShoppingRequest;
 
 class ViewOrder extends ViewRecord
 {
@@ -21,7 +21,7 @@ class ViewOrder extends ViewRecord
                 ->label('Proses Pesanan')
                 ->icon('heroicon-o-play')
                 ->color('info')
-                ->visible(fn(Order $record) => $record->status === 'paid')
+                ->visible(fn (Order $record) => $record->status === 'paid')
                 ->requiresConfirmation()
                 ->action(function (Order $record) {
                     $record->update(['status' => 'processing']);
@@ -32,7 +32,7 @@ class ViewOrder extends ViewRecord
                 ->label('Siap Dikirim')
                 ->icon('heroicon-o-truck')
                 ->color('primary')
-                ->visible(fn(Order $record) => $record->status === 'processing')
+                ->visible(fn (Order $record) => $record->status === 'processing')
                 ->requiresConfirmation()
                 ->action(function (Order $record) {
                     $record->update(['status' => 'ready_for_delivery']);
@@ -43,7 +43,7 @@ class ViewOrder extends ViewRecord
                 ->label('Batalkan')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn(Order $record) => in_array($record->status, ['pending_payment', 'paid', 'processing']))
+                ->visible(fn (Order $record) => in_array($record->status, ['pending_payment', 'paid', 'processing']))
                 ->requiresConfirmation()
                 ->modalDescription('Pembayaran yang masih pending ikut dibatalkan. Kalau pesanan sudah dibayar, refund diurus manual di luar sistem.')
                 ->action(function (Order $record) {

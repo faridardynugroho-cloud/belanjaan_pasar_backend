@@ -36,7 +36,7 @@ class RiwayatSanksiStats extends StatsOverviewWidget
                 ->descriptionIcon('heroicon-m-no-symbol'),
 
             Stat::make('Driver Sedang Disuspend', $driverDisuspend)
-                ->description($terjadwal . ' sanksi terjadwal')
+                ->description($terjadwal.' sanksi terjadwal')
                 ->color($driverDisuspend > 0 ? 'warning' : 'gray'),
 
             Stat::make('Akan Berakhir', $akanBerakhir)

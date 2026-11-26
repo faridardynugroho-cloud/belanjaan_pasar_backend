@@ -23,7 +23,7 @@ class ReviewDriverResource extends Resource
 
     protected static ?string $slug = 'review/driver';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Review';
+    protected static string|UnitEnum|null $navigationGroup = 'Review';
 
     protected static ?int $navigationSort = 3;
 
@@ -51,7 +51,7 @@ class ReviewDriverResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->with([
+            ->modifyQueryUsing(fn (Builder $query) => $query->with([
                 'user:user_id,name',
                 'driverProfile.user:user_id,name',
                 'deliveryOrder.order:order_id,order_number',
@@ -62,8 +62,8 @@ class ReviewDriverResource extends Resource
                 TextColumn::make('driverProfile.user.name')
                     ->label('Driver')
                     ->searchable()
-                    ->description(fn(DriverReview $record) => $record->deliveryOrder?->delivery?->delivery_number
-                        ? 'Pengiriman ' . $record->deliveryOrder->delivery->delivery_number
+                    ->description(fn (DriverReview $record) => $record->deliveryOrder?->delivery?->delivery_number
+                        ? 'Pengiriman '.$record->deliveryOrder->delivery->delivery_number
                         : null),
 
                 static::kolomRating(),
@@ -72,14 +72,14 @@ class ReviewDriverResource extends Resource
             ->filters([
                 SelectFilter::make('driver_profile_id')
                     ->label('Driver')
-                    ->options(fn() => RiwayatSanksiResource::opsiDriver(true))
+                    ->options(fn () => RiwayatSanksiResource::opsiDriver(true))
                     ->searchable(),
 
                 ...static::filterUmum(),
             ], layout: FiltersLayout::AboveContentCollapsible)
             ->filtersFormColumns(4)
             ->recordActions([
-                static::aksiDetail(fn(DriverReview $review) => [
+                static::aksiDetail(fn (DriverReview $review) => [
                     'Driver' => $review->driverProfile?->user?->name,
                     'Pengiriman' => $review->deliveryOrder?->delivery?->delivery_number,
                     'Pesanan' => $review->deliveryOrder?->order?->order_number,

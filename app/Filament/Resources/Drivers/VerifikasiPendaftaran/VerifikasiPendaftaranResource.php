@@ -25,7 +25,7 @@ class VerifikasiPendaftaranResource extends Resource
 
     protected static ?string $slug = 'driver/verifikasi-pendaftaran';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Driver';
+    protected static string|UnitEnum|null $navigationGroup = 'Driver';
 
     protected static ?int $navigationSort = 2;
 
@@ -50,7 +50,7 @@ class VerifikasiPendaftaranResource extends Resource
         return false;
     }
 
-    public static function getRecordTitle(?Model $record): string | Htmlable | null
+    public static function getRecordTitle(?Model $record): string|Htmlable|null
     {
         return $record?->user?->name;
     }
@@ -63,7 +63,7 @@ class VerifikasiPendaftaranResource extends Resource
         return $jumlah > 0 ? (string) $jumlah : null;
     }
 
-    public static function getNavigationBadgeColor(): string | array | null
+    public static function getNavigationBadgeColor(): string|array|null
     {
         return 'warning';
     }
@@ -79,7 +79,7 @@ class VerifikasiPendaftaranResource extends Resource
         return parent::getEloquentQuery()
             ->where('approval_status', '!=', DriverProfile::APPROVAL_APPROVED)
             ->with(['user', 'document', 'vehicle', 'reviewer'])
-            ->withCount(['documentChecks as dokumen_valid' => fn(Builder $q) => $q->where('status', DriverDocumentCheck::STATUS_VALID)]);
+            ->withCount(['documentChecks as dokumen_valid' => fn (Builder $q) => $q->where('status', DriverDocumentCheck::STATUS_VALID)]);
     }
 
     public static function getRelations(): array
@@ -135,9 +135,9 @@ class VerifikasiPendaftaranResource extends Resource
                 ->schema([
                     TextEntry::make('approval_status')
                         ->label('Status')
-                        ->formatStateUsing(fn(string $state) => static::labelStatus($state))
+                        ->formatStateUsing(fn (string $state) => static::labelStatus($state))
                         ->badge()
-                        ->color(fn(string $state) => static::warnaStatus($state)),
+                        ->color(fn (string $state) => static::warnaStatus($state)),
 
                     TextEntry::make('created_at')->label('Tanggal daftar')->dateTime('d M Y H:i'),
 
@@ -145,16 +145,16 @@ class VerifikasiPendaftaranResource extends Resource
                         ->label('Terakhir ditinjau')
                         ->dateTime('d M Y H:i')
                         ->placeholder('Belum ditinjau')
-                        ->helperText(fn(DriverProfile $record) => $record->reviewer ? 'oleh ' . $record->reviewer->name : null),
+                        ->helperText(fn (DriverProfile $record) => $record->reviewer ? 'oleh '.$record->reviewer->name : null),
 
                     TextEntry::make('dokumen')
                         ->label('Dokumen valid')
-                        ->state(fn(DriverProfile $record) => ($record->dokumen_valid ?? 0) . ' dari ' . count(DriverDocumentCheck::ITEMS)),
+                        ->state(fn (DriverProfile $record) => ($record->dokumen_valid ?? 0).' dari '.count(DriverDocumentCheck::ITEMS)),
 
                     TextEntry::make('rejection_reason')
                         ->label('Alasan penolakan')
                         ->columnSpanFull()
-                        ->visible(fn(DriverProfile $record) => $record->approval_status === DriverProfile::APPROVAL_REJECTED),
+                        ->visible(fn (DriverProfile $record) => $record->approval_status === DriverProfile::APPROVAL_REJECTED),
                 ]),
 
             Section::make('Data pendaftar')
@@ -165,7 +165,7 @@ class VerifikasiPendaftaranResource extends Resource
                     TextEntry::make('user.phone')->label('Telepon')->placeholder('-'),
                     TextEntry::make('user.gender')
                         ->label('Jenis kelamin')
-                        ->formatStateUsing(fn($state) => match ($state) {
+                        ->formatStateUsing(fn ($state) => match ($state) {
                             'male' => 'Laki-laki',
                             'female' => 'Perempuan',
                             default => '-',
@@ -198,7 +198,7 @@ class VerifikasiPendaftaranResource extends Resource
                 TextColumn::make('user.name')
                     ->label('Pendaftar')
                     ->searchable()
-                    ->description(fn(DriverProfile $record) => $record->user?->email),
+                    ->description(fn (DriverProfile $record) => $record->user?->email),
 
                 TextColumn::make('user.phone')->label('Telepon')->searchable()->placeholder('-'),
 
@@ -209,21 +209,21 @@ class VerifikasiPendaftaranResource extends Resource
 
                 TextColumn::make('kelengkapan')
                     ->label('Kelengkapan')
-                    ->state(fn(DriverProfile $record) => static::jumlahDokumenTerunggah($record) . '/' . count(DriverDocumentCheck::ITEMS) . ' diunggah')
+                    ->state(fn (DriverProfile $record) => static::jumlahDokumenTerunggah($record).'/'.count(DriverDocumentCheck::ITEMS).' diunggah')
                     ->badge()
-                    ->color(fn(DriverProfile $record) => static::jumlahDokumenTerunggah($record) === count(DriverDocumentCheck::ITEMS) ? 'success' : 'warning'),
+                    ->color(fn (DriverProfile $record) => static::jumlahDokumenTerunggah($record) === count(DriverDocumentCheck::ITEMS) ? 'success' : 'warning'),
 
                 TextColumn::make('dokumen_valid')
                     ->label('Validasi')
-                    ->state(fn(DriverProfile $record) => ($record->dokumen_valid ?? 0) . '/' . count(DriverDocumentCheck::ITEMS) . ' valid')
+                    ->state(fn (DriverProfile $record) => ($record->dokumen_valid ?? 0).'/'.count(DriverDocumentCheck::ITEMS).' valid')
                     ->badge()
-                    ->color(fn(DriverProfile $record) => ($record->dokumen_valid ?? 0) === count(DriverDocumentCheck::ITEMS) ? 'success' : 'gray'),
+                    ->color(fn (DriverProfile $record) => ($record->dokumen_valid ?? 0) === count(DriverDocumentCheck::ITEMS) ? 'success' : 'gray'),
 
                 TextColumn::make('approval_status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(fn(string $state) => static::labelStatus($state))
-                    ->color(fn(string $state) => static::warnaStatus($state)),
+                    ->formatStateUsing(fn (string $state) => static::labelStatus($state))
+                    ->color(fn (string $state) => static::warnaStatus($state)),
             ])
             ->recordActions([
                 ViewAction::make()->label('Periksa')->icon('heroicon-o-clipboard-document-check'),

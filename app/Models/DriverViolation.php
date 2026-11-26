@@ -10,11 +10,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class DriverViolation extends Model
 {
     public const SOURCE_CUSTOMER = 'customer';
+
     public const SOURCE_ADMIN = 'admin';
 
     public const STATUS_REPORTED = 'reported';
+
     public const STATUS_VALIDATED = 'validated';
+
     public const STATUS_REJECTED = 'rejected';
+
     public const STATUS_REVOKED = 'revoked';
 
     protected $primaryKey = 'driver_violation_id';

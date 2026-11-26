@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,14 +12,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Delivery extends Model
 {
+    use HasFactory;
+
     // Status turunan dari started_at / completed_at / cancelled_at (tidak ada kolom status)
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_ON_THE_WAY = 'on_the_way';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     /** Batas satu perjalanan. */
     public const MAX_ORDERS = 3;
+
     public const MAX_WEIGHT_GRAMS = 50000;
 
     protected $primaryKey = 'delivery_id';
@@ -54,7 +61,6 @@ class Delivery extends Model
     {
         return $this->status === self::STATUS_PENDING;
     }
-
 
     public function driver(): BelongsTo
     {
